@@ -18,49 +18,45 @@
  * *********************************************************************** */
 package org.matsim.project;
 
+import org.apache.log4j.Logger;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
 import org.matsim.api.core.v01.Scenario;
-import org.matsim.contrib.otfvis.OTFVisLiveModule;
 import org.matsim.core.config.Config;
-import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.controler.Controler;
-import org.matsim.core.controler.OutputDirectoryHierarchy;
-import org.matsim.core.scenario.ScenarioUtils;
+import org.matsim.run.RunSerengetiParkScenario;
+import org.matsim.testcases.MatsimTestUtils;
 
 /**
- * @author nagel
+ * @author ikaddoura
  *
  */
-public class RunMatsim{
-
-	public static void main(String[] args) {
-
-		Config config;
-		if ( args==null || args.length==0 || args[0]==null ){
-			config = ConfigUtils.loadConfig( "scenarios/equil/config.xml" );
-		} else {
-			config = ConfigUtils.loadConfig( args );
-		}
-		config.controler().setOverwriteFileSetting( OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists );
-
-		// possibly modify config here
-		
-		// ---
-		
-		Scenario scenario = ScenarioUtils.loadScenario(config) ;
-		
-		// possibly modify scenario here
-		
-		// ---
-		
-		Controler controler = new Controler( scenario ) ;
-		
-		// possibly modify controler here
-
-		controler.addOverridingModule( new OTFVisLiveModule() ) ;
-		
-		// ---
-		
-		controler.run();
-	}
+public class RunSerengetiParkScenarioTest {
 	
+	@Rule public MatsimTestUtils utils = new MatsimTestUtils() ;
+
+	@Test
+	public final void test() {
+
+		try {
+			String [] args = {"./scenarios/serengeti-park-v1.0/input/serengeti-park-config-v1.0.xml",
+				  "--config:controler.outputDirectory", utils.getOutputDirectory(),
+				  "--config:controler.lastIteration", "0"
+			} ;
+			
+			Config config = RunSerengetiParkScenario.prepareConfig( args ) ;
+			Scenario scenario = RunSerengetiParkScenario.prepareScenario( config ) ;
+			Controler controler = RunSerengetiParkScenario.prepareControler( scenario ) ;
+			controler.run();
+			
+		} catch ( Exception ee ) {
+			Logger.getLogger(this.getClass()).fatal("there was an exception: \n" + ee ) ;
+
+			// if one catches an exception, then one needs to explicitly fail the test:
+			Assert.fail();
+		}
+
+
+	}
 }
