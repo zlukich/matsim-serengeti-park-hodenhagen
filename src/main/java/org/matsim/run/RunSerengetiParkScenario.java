@@ -167,20 +167,7 @@ public final class RunSerengetiParkScenario {
 		// add lanes for link "1325764790002f"
 		{
 			LanesToLinkAssignment laneLinkAssignment = factory.createLanesToLinkAssignment(linkIdBeforeIntersection);
-			
-			Lane lane0 = factory.createLane(leftTurnLaneId);
-			lane0.addToLinkId(nextLinkIdLeftTurn); // turn left towards check-in link
-			lane0.setStartsAtMeterFromLinkEnd(165.67285516126265);
-			lane0.setCapacityVehiclesPerHour(720.);
-			laneLinkAssignment.addLane(lane0);
 
-			Lane lane1 = factory.createLane(straightLaneId);
-			lane1.addToLinkId(nextLinkIdStraight); // straight!
-			lane1.setStartsAtMeterFromLinkEnd(165.67285516126265);
-			lane1.setCapacityVehiclesPerHour(720. * 3.0);
-			lane1.setNumberOfRepresentedLanes(3.0);
-			laneLinkAssignment.addLane(lane1);
-			
 			Lane laneIn = factory.createLane(Id.create("1325764790002f_in", Lane.class));
 			laneIn.addToLaneId(leftTurnLaneId);
 			laneIn.addToLaneId(straightLaneId);
@@ -188,6 +175,20 @@ public final class RunSerengetiParkScenario {
 			laneIn.setCapacityVehiclesPerHour(720. * 4);
 			laneIn.setNumberOfRepresentedLanes(4.0);
 			laneLinkAssignment.addLane(laneIn);
+
+			// TODO: outgoing lanes must start after the in lane
+			Lane lane0 = factory.createLane(leftTurnLaneId);
+			lane0.addToLinkId(nextLinkIdLeftTurn); // turn left towards check-in link
+			lane0.setStartsAtMeterFromLinkEnd(165.67285516126265 - 1);
+			lane0.setCapacityVehiclesPerHour(720.);
+			laneLinkAssignment.addLane(lane0);
+
+			Lane lane1 = factory.createLane(straightLaneId);
+			lane1.addToLinkId(nextLinkIdStraight); // straight!
+			lane1.setStartsAtMeterFromLinkEnd(165.67285516126265 - 1);
+			lane1.setCapacityVehiclesPerHour(720. * 3.0);
+			lane1.setNumberOfRepresentedLanes(3.0);
+			laneLinkAssignment.addLane(lane1);
 
 			scenario.getLanes().addLanesToLinkAssignment(laneLinkAssignment);
 		}
