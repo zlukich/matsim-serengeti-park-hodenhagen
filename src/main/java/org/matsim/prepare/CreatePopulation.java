@@ -58,7 +58,6 @@ public class CreatePopulation {
 
 	private int personCounter = 0;
 	private final Map<String, SimpleFeature> features = new HashMap<>();
-	private final Scenario scenario;
 	private final Map<Id<Link>, Integer> linkId2numberOfVisitorsSerengetiParkplatz = new HashMap<>();
 	private final Map<Id<Link>, Integer> linkId2numberOfVisitorsWasserland = new HashMap<>();
 	private final Map<Id<Link>, Integer> linkId2numberOfVisitorsSerengetiPark = new HashMap<>();
@@ -68,37 +67,43 @@ public class CreatePopulation {
 	private final String wasserlandParkplatzDestination = "wasserlandParkplatz";
 	private final String serengetiParkDestination = "serengetiPark";
 	
-	final String networkFile = "./scenarios/serengeti-park-v1.0/input/serengeti-park-network-v1.0.xml.gz";
-	final String serengetiParkplatzShp = "./original-input-data/shp-files/serengeti-parkplatz/serengeti-parkplatz.shp";
-	final String wasserlandParkplatzShp = "./original-input-data/shp-files/wasserland-parkplatz/wasserland-parkplatz.shp";
-	final String serengetiParkShp = "./original-input-data/shp-files/serengeti-park/serengeti-park.shp";
-
-	final String outputFilePopulation = "./scenarios/serengeti-park-v1.0/input/serengeti-park-population-v1.0.xml.gz";
+	private final String serengetiParkplatzShp = "./original-input-data/shp-files/serengeti-parkplatz/serengeti-parkplatz.shp";
+	private final String wasserlandParkplatzShp = "./original-input-data/shp-files/wasserland-parkplatz/wasserland-parkplatz.shp";
+	private final String serengetiParkShp = "./original-input-data/shp-files/serengeti-park/serengeti-park.shp";
 
 	public static void main(String [] args) throws IOException, ParseException {
+		
+		final String networkFile = "./scenarios/serengeti-park-v1.0/input/serengeti-park-network-v1.0.xml.gz";
+		final String outputFilePopulation = "./scenarios/serengeti-park-v1.0/input/serengeti-park-population-v1.0.xml.gz";
 
-		CreatePopulation popGenerator = new CreatePopulation();
-		popGenerator.run();	
+		Config config = ConfigUtils.createConfig();
+		config.network().setInputFile(networkFile);
+		Scenario scenario = ScenarioUtils.loadScenario(config);
+
+		CreatePopulation popGenerator = new CreatePopulation(10000);
+		popGenerator.run(scenario);	
+		
+		new PopulationWriter(scenario.getPopulation(), scenario.getNetwork()).write(outputFilePopulation);
+		log.info("Population written to: " + outputFilePopulation);
+	
 	}
 
 
-	public CreatePopulation() throws IOException {
+	public CreatePopulation(int numberOfSafariVisitors) throws IOException {
 		
-		linkId2numberOfVisitorsSerengetiParkplatz.put(Id.createLinkId("2344590910000r"), 5000);
-		linkId2numberOfVisitorsSerengetiParkplatz.put(Id.createLinkId("44371520007f"), 2500);
-		linkId2numberOfVisitorsSerengetiParkplatz.put(Id.createLinkId("377320760000r"), 2500);
+		int serengetiParkplatzUsers = 675;
+		linkId2numberOfVisitorsSerengetiParkplatz.put(Id.createLinkId("2344590910000r"), (int) (serengetiParkplatzUsers * 0.6)); // Motorway
+		linkId2numberOfVisitorsSerengetiParkplatz.put(Id.createLinkId("44371520007f"), (int) (serengetiParkplatzUsers * 0.1)); // North
+		linkId2numberOfVisitorsSerengetiParkplatz.put(Id.createLinkId("377320760000r"), (int) (serengetiParkplatzUsers * 0.3)); // Hodenhagen
 		
-		linkId2numberOfVisitorsWasserland.put(Id.createLinkId("2344590910000r"), 5000);
-		linkId2numberOfVisitorsWasserland.put(Id.createLinkId("44371520007f"), 2500);
-		linkId2numberOfVisitorsWasserland.put(Id.createLinkId("377320760000r"), 2500);
+		int wasserlandParkplatzUsers = 1569;
+		linkId2numberOfVisitorsWasserland.put(Id.createLinkId("2344590910000r"), (int) (wasserlandParkplatzUsers * 0.6)); // Motorway
+		linkId2numberOfVisitorsWasserland.put(Id.createLinkId("44371520007f"), (int) (wasserlandParkplatzUsers * 0.1)); // North
+		linkId2numberOfVisitorsWasserland.put(Id.createLinkId("377320760000r"), (int) (wasserlandParkplatzUsers * 0.3)); // Hodenhagen
 		
-		linkId2numberOfVisitorsSerengetiPark.put(Id.createLinkId("2344590910000r"), 10000);
-		linkId2numberOfVisitorsSerengetiPark.put(Id.createLinkId("44371520007f"), 2500);
-		linkId2numberOfVisitorsSerengetiPark.put(Id.createLinkId("377320760000r"), 2500);
-		
-		Config config = ConfigUtils.createConfig();
-		config.network().setInputFile(networkFile);
-		scenario = ScenarioUtils.loadScenario(config);
+		linkId2numberOfVisitorsSerengetiPark.put(Id.createLinkId("2344590910000r"), (int) (numberOfSafariVisitors * 0.6)); // Motorway
+		linkId2numberOfVisitorsSerengetiPark.put(Id.createLinkId("44371520007f"), (int) (numberOfSafariVisitors * 0.1)); // North
+		linkId2numberOfVisitorsSerengetiPark.put(Id.createLinkId("377320760000r"), (int) (numberOfSafariVisitors * 0.3)); // Hodenhagen
 		
 		log.info("Reading shp files...");
 
@@ -134,7 +139,7 @@ public class CreatePopulation {
 	}
 
 
-	private void run() throws ParseException, IOException {
+	public Scenario run(Scenario scenario) {
 
 		Random rnd = MatsimRandom.getRandom();
 
@@ -150,9 +155,9 @@ public class CreatePopulation {
 			createVisitors(scenario, rnd, linkId, linkId2numberOfVisitorsSerengetiPark.get(linkId), this.serengetiParkDestination);
 		}
 
-		new PopulationWriter(scenario.getPopulation(), scenario.getNetwork()).write(outputFilePopulation);
-		log.info("Population written to: " + outputFilePopulation);
 		log.info("Population contains " + personCounter + " agents.");
+		
+		return scenario;
 	}
 
 
@@ -165,10 +170,10 @@ public class CreatePopulation {
 			
 			Plan plan = popFactory.createPlan();
 						
-			Activity startActivity = popFactory.createActivityFromCoord(this.activityType, scenario.getNetwork().getLinks().get(linkId).getFromNode().getCoord());
+			Activity startActivity = popFactory.createActivityFromCoord("home", scenario.getNetwork().getLinks().get(linkId).getFromNode().getCoord());
 
-			double startTime = calculateNormallyDistributedTime(9 * 3600., 1 * 3600.); // normally distributed around 9
-//			double startTime = calculateRandomlyDistributedValue(9 * 3600., 1 * 3600.); // randomly distributed between 8 and 10 
+			double startTime = calculateNormallyDistributedTime(10 * 3600., 2 * 3600.); // normally distributed
+//			double startTime = calculateRandomlyDistributedValue(10 * 3600., 3 * 3600.); // randomly distributed 
 
 			startActivity.setEndTime(startTime);
 			plan.addActivity(startActivity);
@@ -216,7 +221,7 @@ public class CreatePopulation {
 			double normal = random.nextGaussian();
 			endTimeInSec = mean + stdDev * normal;
 			
-			if (endTimeInSec >= 0. && endTimeInSec <= 24. * 3600.) {
+			if (endTimeInSec >= 8. * 3600 && endTimeInSec <= 20. * 3600.) {
 				leaveLoop = true;
 			}
 		}

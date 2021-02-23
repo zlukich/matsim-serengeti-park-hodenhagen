@@ -3,9 +3,7 @@ package org.matsim.prepare;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 
-import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.api.core.v01.network.Link;
 import org.matsim.api.core.v01.network.Network;
@@ -43,9 +41,11 @@ public final class CreateNetwork {
 		
 		Network network = new SupersonicOsmNetworkReader.Builder()
 				
-				.addOverridingLinkProperties(OsmTags.SERVICE, new LinkProperties(9, 1, 10 / 3.6, 300, false))
+				.addOverridingLinkProperties(OsmTags.UNCLASSIFIED, new LinkProperties(LinkProperties.LEVEL_UNCLASSIFIED, 1, 15 / 3.6, 720, false))
+				.addOverridingLinkProperties(OsmTags.SERVICE, new LinkProperties(9, 1, 10 / 3.6, 720, false))
 				.setPreserveNodeWithId((id) -> true) // make sure we keep the geometry of the roads...
 				.setCoordinateTransformation(ct)
+				.setAdjustCapacityLength(1.)
 				
 //				.setIncludeLinkAtCoordWithHierarchy((coord, hierachyLevel) ->
 //						hierachyLevel <= 9 &&
@@ -56,36 +56,11 @@ public final class CreateNetwork {
 				.setAfterLinkCreated((link, osmTags, isReverse) -> link.setAllowedModes(new HashSet<>(Arrays.asList(TransportMode.car))))
 				.build()
 				.read(osmFile);
-		
-		
-		Set<Id<Link>> forCarsRestrictedLinks = new HashSet<>(Arrays.asList(
-				Id.createLinkId("3622817410000f"), Id.createLinkId("3622817410000r"),
-				Id.createLinkId("3622817520000f"), Id.createLinkId("3622817520000r")));
-		
-		Set<Id<Link>> kassenLinks = new HashSet<>(Arrays.asList(
-				// north
-				Id.createLinkId("3624560720003f"),
-				Id.createLinkId("3624560680002f"),
-				Id.createLinkId("3624560690002f"),
-				Id.createLinkId("3624560660002f"),
-				
-				// south
-				Id.createLinkId("5297562640002f"),
-				Id.createLinkId("2184588460002f"),
-				Id.createLinkId("2184588440002f")));
 
 		// make sure there is space for at least one vehicle on each link
 		for (Link link : network.getLinks().values()) {
 			if (link.getLength() <= 7.5) {
 				link.setLength(8.);
-			}
-			
-			if (forCarsRestrictedLinks.contains(link.getId())) {
-				link.setFreespeed(0.001);
-			}
-			
-			if (kassenLinks.contains(link.getId())) {
-				link.setCapacity(120); // 30 sec per veh --> 3600/30 = 120
 			}
 		}
 

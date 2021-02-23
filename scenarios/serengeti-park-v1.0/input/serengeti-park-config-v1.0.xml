@@ -2,12 +2,14 @@
 <!DOCTYPE config SYSTEM "http://www.matsim.org/files/dtd/config_v2.dtd">
 <config>
 	<module name="controler" >
-		<param name="lastIteration" value="10" />
+		<param name="lastIteration" value="100" />
 		<param name="overwriteFiles" value="deleteDirectoryIfExists" />
 		<param name="runId" value="serengeti-park-v1.0-run1" />
 		<param name="outputDirectory" value="./scenarios/serengeti-park-v1.0/output-serengeti-park-v1.0-run1" />
-		<param name="writeEventsInterval" value="50" />
-		<param name="writePlansInterval" value="50" />
+		<param name="writeEventsInterval" value="1" />
+		<param name="writePlansInterval" value="1" />
+		<param name="enableLinkToLinkRouting" value="true" />
+		<param name="routingAlgorithmType" value="Dijkstra"/>
 	</module>
 	<module name="global" >
 		<param name="coordinateSystem" value="EPSG:25832" />
@@ -18,7 +20,7 @@
 		<param name="inputNetworkFile" value="serengeti-park-network-v1.0.xml.gz" />
 	</module>
 	<module name="plans" >
-		<param name="inputPlansFile" value="serengeti-park-population-v1.0.xml.gz" />
+		<!-- <param name="inputPlansFile" value="serengeti-park-population-v1.0.xml.gz" />  -->
 		<param name="removingUnnecessaryPlanAttributes" value="true" />
 	</module>
 	<module name="vehicles" >
@@ -42,48 +44,56 @@
 		<param name="numberOfThreads" value="8" />
 		<param name="startTime" value="00:00:00" />
 		<param name="storageCapacityFactor" value="1.0" />
-		<param name="stuckTime" value="30.0" />
-		<param name="trafficDynamics" value="kinematicWaves" />
+		<param name="stuckTime" value="10.0" />
+<!-- 		<param name="trafficDynamics" value="kinematicWaves" /> -->
+		<param name="trafficDynamics" value="queue" />
 		<param name="vehiclesSource" value="modeVehicleTypesFromVehiclesData" />
 		<param name="insertingWaitingVehiclesBeforeDrivingVehicles" value="true" />
+		<param name="useLanes" value="true" />
 	</module>
 	<module name="strategy" >
 		<param name="fractionOfIterationsToDisableInnovation" value="0.8" />
 		<parameterset type="strategysettings" >
 			<param name="strategyName" value="ChangeExpBeta" />
 			<param name="subpopulation" value="serengetiParkplatz" />
-			<param name="weight" value="0.8" />
+			<param name="weight" value="0.9" />
 		</parameterset>
 		<parameterset type="strategysettings" >
 			<param name="strategyName" value="ReRoute" />
 			<param name="subpopulation" value="serengetiParkplatz" />
-			<param name="weight" value="0.2" />
+			<param name="weight" value="0.1" />
 		</parameterset>
 		<parameterset type="strategysettings" >
 			<param name="strategyName" value="ChangeExpBeta" />
 			<param name="subpopulation" value="wasserlandParkplatz" />
-			<param name="weight" value="0.8" />
+			<param name="weight" value="0.9" />
 		</parameterset>
 		<parameterset type="strategysettings" >
 			<param name="strategyName" value="ReRoute" />
 			<param name="subpopulation" value="wasserlandParkplatz" />
-			<param name="weight" value="0.2" />
+			<param name="weight" value="0.1" />
 		</parameterset>
 		<parameterset type="strategysettings" >
 			<param name="strategyName" value="ChangeExpBeta" />
 			<param name="subpopulation" value="serengetiPark" />
-			<param name="weight" value="0.8" />
+			<param name="weight" value="0.9" />
 		</parameterset>
 		<parameterset type="strategysettings" >
 			<param name="strategyName" value="ReRoute" />
 			<param name="subpopulation" value="serengetiPark" />
-			<param name="weight" value="0.2" />
+			<param name="weight" value="0.1" />
 		</parameterset>
 	</module>
-	<module name="travelTimeCalculator" >
-		<param name="analyzedModes" value="car" />
-		<param name="separateModes" value="true" />
-	</module>
+	<module name="travelTimeCalculator">
+        <param name="analyzedModes" value="car"/>
+
+        <!-- Not implemented for link2link routing -->
+        <param name="separateModes" value="false"/>
+
+        <!-- Needed for lane specific routing times -->
+        <param name="calculateLinkToLinkTravelTimes" value="true" />
+        <param name="calculateLinkTravelTimes" value="true" />
+    </module>
 	<module name="vspExperimental" >
 		<param name="vspDefaultsCheckingLevel" value="abort" />
 	</module>
