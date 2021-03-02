@@ -136,7 +136,7 @@ public final class RunSerengetiParkScenario {
 			
 			// keep just one link for the north check-in area
 			if (link.getId().toString().equals("3624560720003f")) {
-				link.setCapacity(120 * 4); // 30 sec per veh --> 3600/30 = 120; per check-in lane
+				link.setCapacity(60 * 4); // 60 sec per veh --> 3600/60 = 60 veh/h per check-in lane
 				link.setFreespeed(2.7777);
 				
 				// account for the other check-in links
@@ -147,7 +147,7 @@ public final class RunSerengetiParkScenario {
 			
 			// keep just one link for the south check-in area
 			if (link.getId().toString().equals("5297562640002f")) {
-				link.setCapacity(120 * 3); // 30 sec per veh --> 3600/30 = 120; per check-in lane
+				link.setCapacity(60 * 3); // 60 sec per veh --> 3600/60 = 60 veh/h per check-in lane
 				link.setFreespeed(2.7777);
 
 				// account for the other check-in links
@@ -191,30 +191,11 @@ public final class RunSerengetiParkScenario {
 			laneLinkAssignment.addLane(lane1);
 
 			scenario.getLanes().addLanesToLinkAssignment(laneLinkAssignment);
-		}
+		}		
 		
-		// add lanes for link "1325764790001f"
-//		{
-//			LanesToLinkAssignment laneLinkAssignment = factory.createLanesToLinkAssignment(Id.createLinkId("1325764790001f"));
-//			
-//			Lane lane0 = factory.createLane(Id.create("1325764790001f_in", Lane.class));
-//			lane0.addToLaneId(Id.create("1325764790001f_straight", Lane.class));
-//			lane0.setNumberOfRepresentedLanes(3.);
-//			lane0.setStartsAtMeterFromLinkEnd(17.68494595173649);
-//			lane0.setCapacityVehiclesPerHour(720. * 3.0);
-//			laneLinkAssignment.addLane(lane0);
-//
-//			Lane lane1 = factory.createLane(Id.create("1325764790001f_straight", Lane.class));
-//			lane1.addToLinkId(linkIdBeforeIntersection);
-//			lane1.setNumberOfRepresentedLanes(3.);
-//			lane1.setStartsAtMeterFromLinkEnd(17.68494595173649);
-//			lane1.setCapacityVehiclesPerHour(720. * 3.0);
-//			laneLinkAssignment.addLane(lane1);
-//
-//			scenario.getLanes().addLanesToLinkAssignment(laneLinkAssignment);
-//		}	
-		
-		CreatePopulation createPopulation = new CreatePopulation(4000);
+		// tour bus: 0.6*10000 = 6000; by car: 6000 * 0.9 = 5400; cars: 5400/4 = 1350
+		// own car: 0.4*1000 = 4000; by car: 4000 * 0.9 = 3600; cars: 3600/4 = 900
+		CreatePopulation createPopulation = new CreatePopulation(900, 675, 1350-675);
 		createPopulation.run(scenario);
 		
 		return scenario;

@@ -80,7 +80,7 @@ public class CreatePopulation {
 		config.network().setInputFile(networkFile);
 		Scenario scenario = ScenarioUtils.loadScenario(config);
 
-		CreatePopulation popGenerator = new CreatePopulation(10000);
+		CreatePopulation popGenerator = new CreatePopulation(1000, 675, 1569);
 		popGenerator.run(scenario);	
 		
 		new PopulationWriter(scenario.getPopulation(), scenario.getNetwork()).write(outputFilePopulation);
@@ -89,21 +89,21 @@ public class CreatePopulation {
 	}
 
 
-	public CreatePopulation(int numberOfSafariVisitors) throws IOException {
+	public CreatePopulation(int numberOfSafariVisitors, int safariParkplatzVisitors, int wasserlandParkplatzVisitors) throws IOException {
 		
-		int serengetiParkplatzUsers = 675;
-		linkId2numberOfVisitorsSerengetiParkplatz.put(Id.createLinkId("2344590910000r"), (int) (serengetiParkplatzUsers * 0.6)); // Motorway
-		linkId2numberOfVisitorsSerengetiParkplatz.put(Id.createLinkId("44371520007f"), (int) (serengetiParkplatzUsers * 0.1)); // North
-		linkId2numberOfVisitorsSerengetiParkplatz.put(Id.createLinkId("377320760000r"), (int) (serengetiParkplatzUsers * 0.3)); // Hodenhagen
+		// capacity 675
+		linkId2numberOfVisitorsSerengetiParkplatz.put(Id.createLinkId("2344590910000r"), (int) (safariParkplatzVisitors * 0.8)); // Motorway
+		linkId2numberOfVisitorsSerengetiParkplatz.put(Id.createLinkId("44371520007f"), (int) (safariParkplatzVisitors * 0.1)); // North
+		linkId2numberOfVisitorsSerengetiParkplatz.put(Id.createLinkId("377320760000r"), (int) (safariParkplatzVisitors * 0.1)); // Hodenhagen
 		
-		int wasserlandParkplatzUsers = 1569;
-		linkId2numberOfVisitorsWasserland.put(Id.createLinkId("2344590910000r"), (int) (wasserlandParkplatzUsers * 0.6)); // Motorway
-		linkId2numberOfVisitorsWasserland.put(Id.createLinkId("44371520007f"), (int) (wasserlandParkplatzUsers * 0.1)); // North
-		linkId2numberOfVisitorsWasserland.put(Id.createLinkId("377320760000r"), (int) (wasserlandParkplatzUsers * 0.3)); // Hodenhagen
+		// capacity 1569
+		linkId2numberOfVisitorsWasserland.put(Id.createLinkId("2344590910000r"), (int) (wasserlandParkplatzVisitors * 0.8)); // Motorway
+		linkId2numberOfVisitorsWasserland.put(Id.createLinkId("44371520007f"), (int) (wasserlandParkplatzVisitors * 0.1)); // North
+		linkId2numberOfVisitorsWasserland.put(Id.createLinkId("377320760000r"), (int) (wasserlandParkplatzVisitors * 0.1)); // Hodenhagen
 		
-		linkId2numberOfVisitorsSerengetiPark.put(Id.createLinkId("2344590910000r"), (int) (numberOfSafariVisitors * 0.6)); // Motorway
+		linkId2numberOfVisitorsSerengetiPark.put(Id.createLinkId("2344590910000r"), (int) (numberOfSafariVisitors * 0.8)); // Motorway
 		linkId2numberOfVisitorsSerengetiPark.put(Id.createLinkId("44371520007f"), (int) (numberOfSafariVisitors * 0.1)); // North
-		linkId2numberOfVisitorsSerengetiPark.put(Id.createLinkId("377320760000r"), (int) (numberOfSafariVisitors * 0.3)); // Hodenhagen
+		linkId2numberOfVisitorsSerengetiPark.put(Id.createLinkId("377320760000r"), (int) (numberOfSafariVisitors * 0.1)); // Hodenhagen
 		
 		log.info("Reading shp files...");
 
@@ -221,7 +221,7 @@ public class CreatePopulation {
 			double normal = random.nextGaussian();
 			endTimeInSec = mean + stdDev * normal;
 			
-			if (endTimeInSec >= 8. * 3600 && endTimeInSec <= 20. * 3600.) {
+			if (endTimeInSec >= 9. * 3600 && endTimeInSec <= 13. * 3600.) {
 				leaveLoop = true;
 			}
 		}
