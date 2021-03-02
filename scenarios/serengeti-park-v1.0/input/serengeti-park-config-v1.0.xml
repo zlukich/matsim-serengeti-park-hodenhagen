@@ -5,7 +5,7 @@
 		<param name="lastIteration" value="100" />
 		<param name="overwriteFiles" value="deleteDirectoryIfExists" />
 		<param name="runId" value="serengeti-park-v1.0-run1" />
-		<param name="outputDirectory" value="./scenarios/output/serengeti-park-v1.0/output-serengeti-park-v1.0-run1" />
+		<param name="outputDirectory" value="./scenarios/serengeti-park-v1.0/output/output-serengeti-park-v1.0-run1" />
 		<param name="writeEventsInterval" value="1" />
 		<param name="writePlansInterval" value="1" />
 		<param name="enableLinkToLinkRouting" value="true" />
