@@ -48,6 +48,19 @@ import org.matsim.prepare.CreatePopulation;
 public final class RunSerengetiParkScenario {
 
 	private static final Logger log = Logger.getLogger(RunSerengetiParkScenario.class );
+	
+	// Demand
+	// tour bus: 0.6*10000 = 6000; by car: 6000 * 0.9 = 5400; cars: 5400/4 = 1350
+	// own car: 0.4*10000 = 4000; by car: 4000 * 0.9 = 3600; cars: 3600/4 = 900
+	private final static int serengetiParkVehicles = 900;
+	private final static int serengetiCarparkVehicles = 675;
+	private final static int wasserlandCarparkVehicles = 675;
+	
+	// Supply
+	// 45 sec per veh --> 3600/45 = 80 veh/h per check-in lane
+	private final static int capacityPerCheckInBooth = 80;
+	private final static int numberOfNorthCheckInBooths = 4;
+	private final static int numberOfSouthCheckInBooths = 3;
 
 	public static void main(String[] args) throws IOException {
 		
@@ -72,22 +85,6 @@ public final class RunSerengetiParkScenario {
 		final Controler controler = new Controler( scenario );
 		
 //		controler.addOverridingModule( new OTFVisLiveModule() ) ;
-		
-//		controler.addOverridingQSimModule(new AbstractQSimModule() {
-//			@Override
-//			protected void configureQSim() {
-//			}
-//
-//			@Provides
-//			QNetworkFactory provideQNetworkFactory(EventsManager eventsManager, Scenario scenario) {
-//				ConfigurableQNetworkFactory factory = new ConfigurableQNetworkFactory(eventsManager, scenario);
-//
-//				QLanesNetworkFactory wrapper = new QLanesNetworkFactory(eventsManager, scenario);
-//				wrapper.setDelegate(factory);
-//				
-//				return wrapper;
-//			}
-//		});
 		
 		return controler;
 	}
@@ -136,23 +133,23 @@ public final class RunSerengetiParkScenario {
 			
 			// keep just one link for the north check-in area
 			if (link.getId().toString().equals("3624560720003f")) {
-				link.setCapacity(60 * 4); // 60 sec per veh --> 3600/60 = 60 veh/h per check-in lane
+				link.setCapacity(capacityPerCheckInBooth * numberOfNorthCheckInBooths);
 				link.setFreespeed(2.7777);
 				
 				// account for the other check-in links
-				link.setLength(30. * 3);
-				link.setNumberOfLanes(4);
+				link.setLength(30. * (numberOfNorthCheckInBooths - 1));
+				link.setNumberOfLanes(numberOfNorthCheckInBooths);
 
 			}
 			
 			// keep just one link for the south check-in area
 			if (link.getId().toString().equals("5297562640002f")) {
-				link.setCapacity(60 * 3); // 60 sec per veh --> 3600/60 = 60 veh/h per check-in lane
+				link.setCapacity(capacityPerCheckInBooth * numberOfSouthCheckInBooths);
 				link.setFreespeed(2.7777);
 
 				// account for the other check-in links
-				link.setLength(40. * 2);
-				link.setNumberOfLanes(3);
+				link.setLength(40. * (numberOfSouthCheckInBooths - 1));
+				link.setNumberOfLanes(numberOfSouthCheckInBooths);
 			}					
 		}
 				
@@ -193,9 +190,7 @@ public final class RunSerengetiParkScenario {
 			scenario.getLanes().addLanesToLinkAssignment(laneLinkAssignment);
 		}		
 		
-		// tour bus: 0.6*10000 = 6000; by car: 6000 * 0.9 = 5400; cars: 5400/4 = 1350
-		// own car: 0.4*1000 = 4000; by car: 4000 * 0.9 = 3600; cars: 3600/4 = 900
-		CreatePopulation createPopulation = new CreatePopulation(900, 675, 1350-675);
+		CreatePopulation createPopulation = new CreatePopulation(serengetiParkVehicles, serengetiCarparkVehicles, wasserlandCarparkVehicles);
 		createPopulation.run(scenario);
 		
 		return scenario;
