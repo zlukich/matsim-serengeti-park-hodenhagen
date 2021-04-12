@@ -172,8 +172,8 @@ public class CreatePopulation {
 						
 			Activity startActivity = popFactory.createActivityFromCoord("home", scenario.getNetwork().getLinks().get(linkId).getFromNode().getCoord());
 
-			double startTime = calculateNormallyDistributedTime(11 * 3600., 1 * 3600.); // normally distributed
-//			double startTime = calculateRandomlyDistributedValue(11 * 3600., 1 * 3600.); // randomly distributed 
+//			double startTime = calculateNormallyDistributedTime(11 * 3600., 1 * 3600.); // normally distributed
+			double startTime = calculateRandomlyDistributedValue(11 * 3600., 1 * 3600.); // randomly distributed 
 
 			startActivity.setEndTime(startTime);
 			plan.addActivity(startActivity);
