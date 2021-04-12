@@ -53,7 +53,7 @@ public final class RunSerengetiParkScenario {
 	// Demand
 	// tour bus: 0.6*10000 = 6000; by car: 6000 * 0.9 = 5400; cars: 5400/4 = 1350
 	// own car: 0.4*10000 = 4000; by car: 4000 * 0.9 = 3600; cars: 3600/4 = 900
-	private final static int serengetiParkVehicles = 900;
+	private final static int serengetiParkVehicles = 1000;
 	private final static int serengetiCarparkVehicles = 675;
 	private final static int wasserlandCarparkVehicles = 675;
 	
