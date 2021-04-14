@@ -49,8 +49,11 @@ import org.matsim.prepare.CreatePopulation;
 public final class RunSerengetiParkScenario {
 
 	private static final Logger log = Logger.getLogger(RunSerengetiParkScenario.class );
-	
+
+
 	// Demand
+	// ts: Besetzungsgrad should be rather 3,4 than 4. Peak days are rather 15000 to 17000 people. Not sure what the 0.9 factor says...
+
 	// tour bus: 0.6*10000 = 6000; by car: 6000 * 0.9 = 5400; cars: 5400/4 = 1350
 	// own car: 0.4*10000 = 4000; by car: 4000 * 0.9 = 3600; cars: 3600/4 = 900
 	private final static int serengetiParkVehicles = 1000;
