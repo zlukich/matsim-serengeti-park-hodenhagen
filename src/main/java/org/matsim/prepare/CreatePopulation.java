@@ -19,12 +19,6 @@
 
 package org.matsim.prepare;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-
 import org.apache.log4j.Logger;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.locationtech.jts.geom.Geometry;
@@ -32,13 +26,7 @@ import org.locationtech.jts.geom.Point;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.network.Link;
-import org.matsim.api.core.v01.population.Activity;
-import org.matsim.api.core.v01.population.Leg;
-import org.matsim.api.core.v01.population.Person;
-import org.matsim.api.core.v01.population.Plan;
-import org.matsim.api.core.v01.population.Population;
-import org.matsim.api.core.v01.population.PopulationFactory;
-import org.matsim.api.core.v01.population.PopulationWriter;
+import org.matsim.api.core.v01.population.*;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.gbl.MatsimRandom;
@@ -46,6 +34,11 @@ import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.core.utils.geometry.geotools.MGC;
 import org.matsim.core.utils.gis.ShapeFileReader;
 import org.opengis.feature.simple.SimpleFeature;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 /**
  *
@@ -66,13 +59,13 @@ public class CreatePopulation {
 	private final String serengetiParkplatzDestination = "serengetiParkplatz";
 	private final String wasserlandParkplatzDestination = "wasserlandParkplatz";
 	private final String serengetiParkDestination = "serengetiPark";
-	
+
 	private final String serengetiParkplatzShp = "./original-input-data/shp-files/serengeti-parkplatz/serengeti-parkplatz.shp";
 	private final String wasserlandParkplatzShp = "./original-input-data/shp-files/wasserland-parkplatz/wasserland-parkplatz.shp";
 	private final String serengetiParkShp = "./original-input-data/shp-files/serengeti-park/serengeti-park.shp";
 
-	public static void main(String [] args) throws IOException, ParseException {
-		
+	public static void main(String[] args) throws IOException {
+
 		final String networkFile = "./scenarios/serengeti-park-v1.0/input/serengeti-park-network-v1.0.xml.gz";
 		final String outputFilePopulation = "./scenarios/serengeti-park-v1.0/input/serengeti-park-population-v1.0.xml.gz";
 
@@ -187,69 +180,67 @@ public class CreatePopulation {
 			Activity endActivity = popFactory.createActivityFromCoord(this.activityType, MGC.point2Coord(endPoint) ) ;
 			plan.addActivity(endActivity);
 
-			pers.addPlan(plan) ;
-			population.addPerson(pers) ;
-			
+			pers.addPlan(plan);
+			population.addPerson(pers);
+
 			pers.getAttributes().putAttribute("subpopulation", type);
-			
+
 			personCounter++;
 		}
+	}
+
+	private static Point getRandomPointInFeature(Random rnd, SimpleFeature ft) {
+
+		if (ft != null) {
+
+			Point p;
+			double x, y;
+			do {
+				x = ft.getBounds().getMinX() + rnd.nextDouble() * (ft.getBounds().getMaxX() - ft.getBounds().getMinX());
+				y = ft.getBounds().getMinY() + rnd.nextDouble() * (ft.getBounds().getMaxY() - ft.getBounds().getMinY());
+				p = MGC.xy2Point(x, y);
+			} while (!((Geometry) ft.getDefaultGeometry()).contains(p));
+			return p;
+
+		} else {
+			return null;
+		}
+
+
 	}
 
 	private double calculateRandomlyDistributedValue(double i, double abweichung) {
 		Random rnd = MatsimRandom.getRandom();
 		double rnd1 = rnd.nextDouble();
 		double rnd2 = rnd.nextDouble();
-		
-		double vorzeichen = 0;
-		if (rnd1<=0.5){
+
+		double vorzeichen;
+		if (rnd1 <= 0.5) {
 			vorzeichen = -1.0;
-		}
-		else {
+		} else {
 			vorzeichen = 1.0;
 		}
-		double endTimeInSec = (i + (rnd2 * abweichung * vorzeichen));
-		return endTimeInSec;
+		return (i + (rnd2 * abweichung * vorzeichen));
 	}
 	
 	private double calculateNormallyDistributedTime(double mean, double stdDev) {
 		Random random = MatsimRandom.getRandom();
 		boolean leaveLoop = false;
 		double endTimeInSec = Double.MIN_VALUE;
-		
-		while(leaveLoop == false) {
+
+		while (!leaveLoop) {
 			double normal = random.nextGaussian();
 			endTimeInSec = mean + stdDev * normal;
-			
+
 			if (endTimeInSec >= 9. * 3600 && endTimeInSec <= 13. * 3600.) {
 				leaveLoop = true;
 			}
 		}
-		
+
 		if (endTimeInSec < 0. || endTimeInSec > 24. * 3600) {
 			throw new RuntimeException("Shouldn't happen. Aborting...");
 		}
 		return endTimeInSec;
-	}
-	
-	private static Point getRandomPointInFeature(Random rnd, SimpleFeature ft) {
-
-		if ( ft!=null ) {
-
-			Point p = null;
-			double x, y;
-			do {
-				x = ft.getBounds().getMinX() + rnd.nextDouble() * (ft.getBounds().getMaxX() - ft.getBounds().getMinX());
-				y = ft.getBounds().getMinY() + rnd.nextDouble() * (ft.getBounds().getMaxY() - ft.getBounds().getMinY());
-				p = MGC.xy2Point(x, y);
-			} while ( !((Geometry) ft.getDefaultGeometry()).contains(p));
-			return p;
-
-		} else {
-			return null ;
-		}
-
-
 	}
 	
 }
