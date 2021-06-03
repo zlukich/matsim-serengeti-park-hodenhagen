@@ -66,7 +66,7 @@ public class CreatePopulationA {
 	private final String serengetiParkplatzShp = "./original-input-data/shp-files/serengeti-parkplatz/serengeti-parkplatz.shp";
 	private final String wasserlandParkplatzShp = "./original-input-data/shp-files/wasserland-parkplatz/wasserland-parkplatz.shp";
 	private final String serengetiParkShp = "./original-input-data/shp-files/serengeti-park/serengeti-park.shp";
-	private final String eickelohParkplatzShp = "./original-input-data/shp-files/eickeloh-parkplatz/eickeloh-parkplatz.shp";
+	private final String eickelohParkplatzShp = "./additional-input-data/shp-files/eickeloh-parkplatz/eickeloh-parkplatz.shp";
 
 	public static void main(String [] args) throws IOException, ParseException {
 
