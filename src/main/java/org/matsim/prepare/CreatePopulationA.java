@@ -36,52 +36,48 @@ import org.matsim.core.utils.gis.ShapeFileReader;
 import org.opengis.feature.simple.SimpleFeature;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
 /**
  *
- *
  * @author ikaddoura
  *
  */
+public class CreatePopulationA {
 
-
-public class CreatePopulationWithTimeSlots {
-
-	private static final Logger log = Logger.getLogger(CreatePopulationWithTimeSlots.class);
+	private static final Logger log = Logger.getLogger(CreatePopulationA.class);
 
 	private int personCounter = 0;
-	private final double travelTime = 360.;
-	private int numberOfTimeSlots;
-	private double timeSlotDuration;
-
-
 	private final Map<String, SimpleFeature> features = new HashMap<>();
 	private final Map<Id<Link>, Integer> linkId2numberOfVisitorsSerengetiParkplatz = new HashMap<>();
 	private final Map<Id<Link>, Integer> linkId2numberOfVisitorsWasserland = new HashMap<>();
 	private final Map<Id<Link>, Integer> linkId2numberOfVisitorsSerengetiPark = new HashMap<>();
+	private final Map<Id<Link>, Integer> linkId2numberOfVisitorsEickelohParkplatz = new HashMap<>();
 
+	private final String activityType = "park";
 	private final String serengetiParkplatzDestination = "serengetiParkplatz";
 	private final String wasserlandParkplatzDestination = "wasserlandParkplatz";
 	private final String serengetiParkDestination = "serengetiPark";
+	private final String eickelohParkplatzDestination = "eickelohParkplatz";
 
 	private final String serengetiParkplatzShp = "./original-input-data/shp-files/serengeti-parkplatz/serengeti-parkplatz.shp";
 	private final String wasserlandParkplatzShp = "./original-input-data/shp-files/wasserland-parkplatz/wasserland-parkplatz.shp";
 	private final String serengetiParkShp = "./original-input-data/shp-files/serengeti-park/serengeti-park.shp";
+	private final String eickelohParkplatzShp = "./original-input-data/shp-files/eickeloh-parkplatz/eickeloh-parkplatz.shp";
 
+	public static void main(String [] args) throws IOException, ParseException {
 
-	public static void main(String[] args) throws IOException {
-
-		final String networkFile = "./scenarios/serengeti-park-v1.0/input/serengeti-park-network-v1.0.xml.gz";
-		final String outputFilePopulation = "./scenarios/serengeti-park-v1.0/input/serengeti-park-population-v1.0.xml.gz";
+		final String networkFile = "./scenarios/measures/input/serengeti-park-network-A.xml.gz";
+		final String outputFilePopulation = "./scenarios/measures/input/serengeti-park-population-A.xml.gz";
 
 		Config config = ConfigUtils.createConfig();
 		config.network().setInputFile(networkFile);
 		Scenario scenario = ScenarioUtils.loadScenario(config);
 
-		CreatePopulationWithTimeSlots popGenerator = new CreatePopulationWithTimeSlots(1000, 675, 1569, 1, 3600.);
+		CreatePopulationA popGenerator = new CreatePopulationA(1000, 675, 1569, 543);
 		popGenerator.run(scenario);
 
 		new PopulationWriter(scenario.getPopulation(), scenario.getNetwork()).write(outputFilePopulation);
@@ -90,11 +86,8 @@ public class CreatePopulationWithTimeSlots {
 	}
 
 
-	public CreatePopulationWithTimeSlots(int numberOfSafariVisitors, int safariParkplatzVisitors, int wasserlandParkplatzVisitors, int numberOfTimeSlots, double timeSlotDuration) throws IOException {
-
-		this.numberOfTimeSlots = numberOfTimeSlots;
-		this.timeSlotDuration = timeSlotDuration;
-
+	public CreatePopulationA(int numberOfSafariVisitors, int safariParkplatzVisitors, int wasserlandParkplatzVisitors, int eickelohParkplatzVisitors) throws IOException {
+		
 		// capacity 675
 		linkId2numberOfVisitorsSerengetiParkplatz.put(Id.createLinkId("2344590910000r"), (int) (safariParkplatzVisitors * 0.8)); // Motorway
 		linkId2numberOfVisitorsSerengetiParkplatz.put(Id.createLinkId("44371520007f"), (int) (safariParkplatzVisitors * 0.1)); // North
@@ -108,6 +101,10 @@ public class CreatePopulationWithTimeSlots {
 		linkId2numberOfVisitorsSerengetiPark.put(Id.createLinkId("2344590910000r"), (int) (numberOfSafariVisitors * 0.8)); // Motorway
 		linkId2numberOfVisitorsSerengetiPark.put(Id.createLinkId("44371520007f"), (int) (numberOfSafariVisitors * 0.1)); // North
 		linkId2numberOfVisitorsSerengetiPark.put(Id.createLinkId("377320760000r"), (int) (numberOfSafariVisitors * 0.1)); // Hodenhagen
+
+		linkId2numberOfVisitorsEickelohParkplatz.put(Id.createLinkId("2344590910000r"), (int) (eickelohParkplatzVisitors * 0.8)); // Motorway
+		linkId2numberOfVisitorsEickelohParkplatz.put(Id.createLinkId("44371520007f"), (int) (eickelohParkplatzVisitors * 0.1)); // North
+		linkId2numberOfVisitorsEickelohParkplatz.put(Id.createLinkId("377320760000r"), (int) (eickelohParkplatzVisitors * 0.1)); // Hodenhagen
 		
 		log.info("Reading shp files...");
 
@@ -137,6 +134,15 @@ public class CreatePopulationWithTimeSlots {
 			}
 			it.close();
 		}
+
+		{
+			SimpleFeatureIterator it = ShapeFileReader.readDataFile(eickelohParkplatzShp).getFeatures().features();
+			while (it.hasNext()) {
+				SimpleFeature ft = it.next();
+				features.put(this.eickelohParkplatzDestination, ft);
+			}
+			it.close();
+		}
 		
 		log.info("Reading shp files... Done.");
 		
@@ -147,63 +153,41 @@ public class CreatePopulationWithTimeSlots {
 
 		Random rnd = MatsimRandom.getRandom();
 
-			//divide the visitor numbers for SerengetiParkplatz into given numberOfTimeSlots slots and add each to a new map
-			Map<Id<Link>, Integer> partOfLinkId2numberOfVisitorsSerengetiParkplatz = new HashMap<>();
-			//Zuweisung: ES WIRD GECASTET
-			for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiParkplatz.keySet()) {
-				partOfLinkId2numberOfVisitorsSerengetiParkplatz.put(linkId, (int) linkId2numberOfVisitorsSerengetiParkplatz.get(linkId) / this.numberOfTimeSlots);
-			}
-			// create visitors for each slot
-			for (int i = 0; i < numberOfTimeSlots; i++) {
-				for (Id<Link> linkId : partOfLinkId2numberOfVisitorsSerengetiParkplatz.keySet()) {
-					createVisitors(scenario, rnd, linkId, partOfLinkId2numberOfVisitorsSerengetiParkplatz.get(linkId), this.serengetiParkplatzDestination, i+1);
-				}
-			}
+		for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiParkplatz.keySet()) {
+			createVisitors(scenario, rnd, linkId, linkId2numberOfVisitorsSerengetiParkplatz.get(linkId), this.serengetiParkplatzDestination);
+		}	
+		
+		for (Id<Link> linkId : linkId2numberOfVisitorsWasserland.keySet()) {
+			createVisitors(scenario, rnd, linkId, linkId2numberOfVisitorsWasserland.get(linkId), this.wasserlandParkplatzDestination);
+		}
 
-			//divide WasserlandParkplatz visitors between the given number of slots and create visitors for each slot:
-			Map<Id<Link>, Integer> partOfLinkId2numberOfVisitorsWasserland = new HashMap<>();
+		for (Id<Link> linkId : linkId2numberOfVisitorsEickelohParkplatz.keySet()) {
+			createVisitors(scenario, rnd, linkId, linkId2numberOfVisitorsEickelohParkplatz.get(linkId), this.eickelohParkplatzDestination);
+		}
 
-			for (Id<Link> linkId : linkId2numberOfVisitorsWasserland.keySet()) {
-				partOfLinkId2numberOfVisitorsWasserland.put(linkId, (int) linkId2numberOfVisitorsWasserland.get(linkId) / this.numberOfTimeSlots);
-			}
-
-			for (int i = 0; i < numberOfTimeSlots; i++) {
-				for (Id<Link> linkId : partOfLinkId2numberOfVisitorsWasserland.keySet()) {
-					createVisitors(scenario, rnd, linkId, partOfLinkId2numberOfVisitorsWasserland.get(linkId), this.wasserlandParkplatzDestination, i+1);
-				}
-			}
-
-			//divide SerengetiPark visitors between the given number of slots and create visitors for each slot:
-			Map<Id<Link>, Integer> partOfLinkId2numberOfVisitorsSerengetiPark = new HashMap<>();
-
-			for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiPark.keySet()) {
-				partOfLinkId2numberOfVisitorsSerengetiPark.put(linkId, (int) linkId2numberOfVisitorsSerengetiPark.get(linkId) / this.numberOfTimeSlots);
-			}
-
-			for (int i = 0; i < numberOfTimeSlots; i++) {
-				for (Id<Link> linkId : partOfLinkId2numberOfVisitorsSerengetiPark.keySet()) {
-					createSafariVisitors(scenario, linkId, partOfLinkId2numberOfVisitorsSerengetiPark.get(linkId), this.serengetiParkDestination, i+1);
-				}
-			}
+		for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiPark.keySet()) {
+			createSafariVisitors(scenario, linkId, linkId2numberOfVisitorsSerengetiPark.get(linkId), this.serengetiParkDestination);
+		}
 
 		log.info("Population contains " + personCounter + " agents.");
 		
 		return scenario;
 	}
 
-	//assume park opens at 10 am
-	private void createVisitors(Scenario scenario, Random rnd, Id<Link> linkId, double odSum, String type, int timeSlot) {
+
+	private void createVisitors(Scenario scenario, Random rnd, Id<Link> linkId, double odSum, String type) {
 		Population population = scenario.getPopulation();
 		PopulationFactory popFactory = population.getFactory();
 
 		for (int i = 0; i < odSum; i++) {
-			Person pers = popFactory.createPerson(Id.create("visitor_S"+timeSlot+"_" + personCounter + "_" + linkId.toString() + "-" + type, Person.class));
-
+			Person pers = popFactory.createPerson(Id.create("visitor_" + personCounter + "_" + linkId.toString() + "-" + type, Person.class));
+			
 			Plan plan = popFactory.createPlan();
-
+						
 			Activity startActivity = popFactory.createActivityFromCoord("home", scenario.getNetwork().getLinks().get(linkId).getFromNode().getCoord());
 
-			double startTime = calculateRandomlyDistributedValue( 10*3600. + this.timeSlotDuration * (timeSlot-1) , 1 * this.travelTime); // randomly distributed
+//			double startTime = calculateNormallyDistributedTime(11 * 3600., 1 * 3600.); // normally distributed
+			double startTime = calculateRandomlyDistributedValue(11 * 3600., 1 * 3600.); // randomly distributed 
 
 			startActivity.setEndTime(startTime);
 			plan.addActivity(startActivity);
@@ -213,33 +197,32 @@ public class CreatePopulationWithTimeSlots {
 
 			Point endPoint = getRandomPointInFeature(rnd, features.get(type));
 			if ( endPoint==null ) log.warn("Point is null.");
-
-			Activity endActivity = popFactory.createActivityFromCoord("park_S"+timeSlot, MGC.point2Coord(endPoint));
+			
+			Activity endActivity = popFactory.createActivityFromCoord(this.activityType, MGC.point2Coord(endPoint) ) ;
 			plan.addActivity(endActivity);
 
-			pers.addPlan(plan);
-			population.addPerson(pers);
-
+			pers.addPlan(plan) ;
+			population.addPerson(pers) ;
+			
 			pers.getAttributes().putAttribute("subpopulation", type);
-
+			
 			personCounter++;
 		}
-
 	}
 
-	//assume park opens at 10 am / arrival timeslots: 1h
-	private void createSafariVisitors(Scenario scenario, Id<Link> linkId, double odSum, String type, int timeSlot) {
+	private void createSafariVisitors(Scenario scenario, Id<Link> linkId, double odSum, String type) {
 		Population population = scenario.getPopulation();
 		PopulationFactory popFactory = population.getFactory();
 
 		for (int i = 0; i < odSum; i++) {
-			Person pers = popFactory.createPerson(Id.create("visitor_S"+timeSlot+"_" + personCounter + "_" + linkId.toString() + "-" + type, Person.class));
+			Person pers = popFactory.createPerson(Id.create("visitor_" + personCounter + "_" + linkId.toString() + "-" + type, Person.class));
 
 			Plan plan = popFactory.createPlan();
 
 			Activity startActivity = popFactory.createActivityFromCoord("home", scenario.getNetwork().getLinks().get(linkId).getFromNode().getCoord());
 
-			double startTime = calculateRandomlyDistributedValue(10*3600. + this.timeSlotDuration * (timeSlot-1) , 1 * this.travelTime); // randomly distributed
+//			double startTime = calculateNormallyDistributedTime(11 * 3600., 1 * 3600.); // normally distributed
+			double startTime = calculateRandomlyDistributedValue(11 * 3600., 1 * 3600.); // randomly distributed
 
 			startActivity.setEndTime(startTime);
 			plan.addActivity(startActivity);
@@ -248,72 +231,72 @@ public class CreatePopulationWithTimeSlots {
 			plan.addLeg(leg1);
 
 			Id<Link> endLinkId = Id.createLinkId("246929390045f");
-			Activity endActivity = popFactory.createActivityFromLinkId("park_S"+timeSlot, endLinkId);
+			Activity endActivity = popFactory.createActivityFromLinkId(this.activityType, endLinkId);
 			plan.addActivity(endActivity);
 
-			pers.addPlan(plan);
-			population.addPerson(pers);
+			pers.addPlan(plan) ;
+			population.addPerson(pers) ;
 
 			pers.getAttributes().putAttribute("subpopulation", type);
 
 			personCounter++;
 		}
-
-	}
-
-
-	private static Point getRandomPointInFeature(Random rnd, SimpleFeature ft) {
-
-		if (ft != null) {
-
-			Point p;
-			double x, y;
-			do {
-				x = ft.getBounds().getMinX() + rnd.nextDouble() * (ft.getBounds().getMaxX() - ft.getBounds().getMinX());
-				y = ft.getBounds().getMinY() + rnd.nextDouble() * (ft.getBounds().getMaxY() - ft.getBounds().getMinY());
-				p = MGC.xy2Point(x, y);
-			} while (!((Geometry) ft.getDefaultGeometry()).contains(p));
-			return p;
-
-		} else {
-			return null;
-		}
-
-
 	}
 
 	private double calculateRandomlyDistributedValue(double i, double abweichung) {
 		Random rnd = MatsimRandom.getRandom();
 		double rnd1 = rnd.nextDouble();
 		double rnd2 = rnd.nextDouble();
-
-		double vorzeichen;
-		if (rnd1 <= 0.5) {
+		
+		double vorzeichen = 0;
+		if (rnd1<=0.5){
 			vorzeichen = -1.0;
-		} else {
+		}
+		else {
 			vorzeichen = 1.0;
 		}
-		return (i + (rnd2 * abweichung * vorzeichen));
+		double endTimeInSec = (i + (rnd2 * abweichung * vorzeichen));
+		return endTimeInSec;
 	}
 	
 	private double calculateNormallyDistributedTime(double mean, double stdDev) {
 		Random random = MatsimRandom.getRandom();
 		boolean leaveLoop = false;
 		double endTimeInSec = Double.MIN_VALUE;
-
-		while (!leaveLoop) {
+		
+		while(leaveLoop == false) {
 			double normal = random.nextGaussian();
 			endTimeInSec = mean + stdDev * normal;
-
+			
 			if (endTimeInSec >= 9. * 3600 && endTimeInSec <= 13. * 3600.) {
 				leaveLoop = true;
 			}
 		}
-
+		
 		if (endTimeInSec < 0. || endTimeInSec > 24. * 3600) {
 			throw new RuntimeException("Shouldn't happen. Aborting...");
 		}
 		return endTimeInSec;
+	}
+	
+	private static Point getRandomPointInFeature(Random rnd, SimpleFeature ft) {
+
+		if ( ft!=null ) {
+
+			Point p = null;
+			double x, y;
+			do {
+				x = ft.getBounds().getMinX() + rnd.nextDouble() * (ft.getBounds().getMaxX() - ft.getBounds().getMinX());
+				y = ft.getBounds().getMinY() + rnd.nextDouble() * (ft.getBounds().getMaxY() - ft.getBounds().getMinY());
+				p = MGC.xy2Point(x, y);
+			} while ( !((Geometry) ft.getDefaultGeometry()).contains(p));
+			return p;
+
+		} else {
+			return null ;
+		}
+
+
 	}
 	
 }

@@ -1,3 +1,4 @@
+/*
 package org.matsim.analyze;
 
 import org.matsim.api.core.v01.Id;
@@ -43,12 +44,13 @@ public class SerengetiParkScenarioAnalysis {
 
     }
 
-    /*public static void calculateFreespeedTTsWholeJourney(String eventsFile) {
+    public static void calculateFreespeedTTsWholeJourney(String eventsFile) {
         EventsManager manager = EventsUtils.createEventsManager();
         TravelledLinksEventHandler handler = new TravelledLinksEventHandler();
         manager.addHandler(handler);
         EventsUtils.readEvents(manager, eventsFile);
-    }*/
+    }
+
 
     //calculate {totalTT, avgTT, maxTT, totalTTLoss} on Access Road
     private static double[] analyzeAccessRoad(String eventsFile) {
@@ -70,7 +72,7 @@ public class SerengetiParkScenarioAnalysis {
 
         return results;
 
-        /*try {
+        try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("./src/main/java/org/matsim/analyze/output_analysis/access_road_tts.csv"));
             writer.write("VEH_ID,ENTER_TIME,LEAVE_TIME,TT,TT_LOSS");
             for (Id<Vehicle> lId : accessRoadHandler.vehicleToTravelTimes.keySet()) {
@@ -80,7 +82,7 @@ public class SerengetiParkScenarioAnalysis {
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
     }
 
     //calculate {totalTT, avgTT, maxTT, totalTTLoss} on Safari
@@ -125,7 +127,7 @@ public class SerengetiParkScenarioAnalysis {
         return results;
 
 
-        /*String accessLink = "7232382780000f";
+String accessLink = "7232382780000f";
         String exitLink = "261715680000r";
         EventsManager manager = EventsUtils.createEventsManager();
         TravelTimeEventHandler accessRoadHandler = new TravelTimeEventHandler(accessLink, exitLink);
@@ -144,7 +146,8 @@ public class SerengetiParkScenarioAnalysis {
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
+
     }
 
 
@@ -199,3 +202,4 @@ public class SerengetiParkScenarioAnalysis {
         return links;
     }
 }
+*/

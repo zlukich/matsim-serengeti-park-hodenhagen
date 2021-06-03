@@ -29,14 +29,17 @@ import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.groups.PlanCalcScoreConfigGroup;
 import org.matsim.core.config.groups.PlansCalcRouteConfigGroup;
 import org.matsim.core.config.groups.QSimConfigGroup.TrafficDynamicsCorrectionApproach;
+import org.matsim.core.config.groups.StrategyConfigGroup;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.controler.OutputDirectoryLogging;
 import org.matsim.core.gbl.Gbl;
+import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule;
 import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.lanes.Lane;
 import org.matsim.lanes.LanesFactory;
 import org.matsim.lanes.LanesToLinkAssignment;
-import org.matsim.prepare.MariaCreatePopulationEickelohIncluded;
+import org.matsim.prepare.CreatePopulationA;
+import org.matsim.prepare.CreatePopulationB;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -47,13 +50,13 @@ import java.util.Set;
 * @author ikaddoura
 */
 
-public final class MariaRunSerengetiParkScenarioWithTimeSlotsAndNewParkingLot {
+public final class RunSerengetiParkScenarioA {
 
-	private static final Logger log = Logger.getLogger(MariaRunSerengetiParkScenarioWithTimeSlotsAndNewParkingLot.class );
+	private static final Logger log = Logger.getLogger(RunSerengetiParkScenarioA.class );
 
-	private final static int totalVisitors = 1000;
+	//ms:
+	private final static int totalVisitors = 100;
 	private final static double percentageSafariOwnCar = 0.4;
-	private final static int numberOfTimeSlots = 1;				//not 0
 
 	// Supply
 	// 45 sec per veh --> 3600/45 = 80 veh/h per check-in lane
@@ -68,7 +71,7 @@ public final class MariaRunSerengetiParkScenarioWithTimeSlotsAndNewParkingLot {
 		}
 		
 		if ( args.length==0 ) {
-			args = new String[] {"./scenarios/serengeti-park-v1.0/input/serengeti-park-config-v1.0-eickeloh-subpopulation-included.xml"}  ;
+			args = new String[] {"./scenarios/measures/input/serengeti-park-config-v1.0.xml"}  ;
 		}
 
 		Config config = prepareConfig( args ) ;
@@ -102,7 +105,12 @@ public final class MariaRunSerengetiParkScenarioWithTimeSlotsAndNewParkingLot {
 				Id.createLinkId("3622817520000f"), Id.createLinkId("3622817520000r"),
 				
 				// longterm parking I guess
-				Id.createLinkId("7232641180000f")
+				Id.createLinkId("7232641180000f"),
+
+				// ms: shortcut links on safari
+				Id.createLinkId("394368960004r"), Id.createLinkId("394368960003r"),
+				Id.createLinkId("394368960002r"), Id.createLinkId("394368960001r"),
+				Id.createLinkId("394368960000r")
 				
 				));
 		
@@ -152,7 +160,6 @@ public final class MariaRunSerengetiParkScenarioWithTimeSlotsAndNewParkingLot {
 				link.setNumberOfLanes(numberOfSouthCheckInBooths);
 			}					
 		}
-				
 		
 		Id<Link> linkIdBeforeIntersection = Id.createLinkId("1325764790002f");
 		Id<Link> nextLinkIdLeftTurn = Id.createLinkId("3624560720000f");
@@ -190,10 +197,9 @@ public final class MariaRunSerengetiParkScenarioWithTimeSlotsAndNewParkingLot {
 			scenario.getLanes().addLanesToLinkAssignment(laneLinkAssignment);
 		}
 
-		//vehicles "demand"
-		//assumption: car occupation 3.4
-		//assumption: 90% of all visitors arrive by own car while 40% of all visitors take the safari by own car
-		//assumption: parking lot usage equally shared
+		// ms:
+		// demand: car occupation 3.4, 90% of all visitors arrive by own car while 40% of all visitors go on safari by own car
+		// assumption: parking lot usage equally shared
 		int ownCarVisitorsVehicles = (int) (0.9*totalVisitors);
 		int serengetiParkVehicles = (int) ((percentageSafariOwnCar * totalVisitors) / 3.4);
 		int carparkVehicles = ownCarVisitorsVehicles - serengetiParkVehicles;
@@ -201,7 +207,7 @@ public final class MariaRunSerengetiParkScenarioWithTimeSlotsAndNewParkingLot {
 		int wasserlandCarparkVehicles = serengetiCarparkVehicles;
 		int eickelohCarparkVehicles = carparkVehicles-serengetiCarparkVehicles-wasserlandCarparkVehicles;
 
-		MariaCreatePopulationEickelohIncluded createPopulation = new MariaCreatePopulationEickelohIncluded(serengetiParkVehicles, serengetiCarparkVehicles, wasserlandCarparkVehicles, eickelohCarparkVehicles, numberOfTimeSlots);
+		CreatePopulationA createPopulation = new CreatePopulationA(serengetiParkVehicles, serengetiCarparkVehicles, wasserlandCarparkVehicles, eickelohCarparkVehicles);
 		createPopulation.run(scenario);
 		
 		return scenario;
@@ -222,23 +228,30 @@ public final class MariaRunSerengetiParkScenarioWithTimeSlotsAndNewParkingLot {
 						
 		config.plansCalcRoute().setAccessEgressType(PlansCalcRouteConfigGroup.AccessEgressType.accessEgressModeToLink);
 
-		//ms: install numberOfTimeSlots time slots "parkS_numberOfTimeSlots: im 1 stunden abstand ab 10:00 uhr
-		for(int i=0; i<numberOfTimeSlots; i++){
-			PlanCalcScoreConfigGroup.ActivityParams parkSlot = new PlanCalcScoreConfigGroup.ActivityParams("parkS"+(i+1));
-			parkSlot.setClosingTime(22*3600.);
-			//parkSlot.setLatestStartTime(undefined);
-			parkSlot.setOpeningTime(7*3600.+i*1*3600.);
-			parkSlot.setTypicalDuration(8*3600.);
-			config.planCalcScore().addActivityParams(parkSlot);
-		}
-
 		config.qsim().setUsingTravelTimeCheckInTeleportation( true );
 		config.qsim().setTrafficDynamicsCorrectionApproach(TrafficDynamicsCorrectionApproach.INCREASE_NUMBER_OF_LANES);
 		
 		ConfigUtils.applyCommandline( config, typedArgs ) ;
 
-		//ms
-		config.controler().setOutputDirectory("./scenarios/serengeti-park-v1.0/output/output-serengeti-park-v1.0-run50visitors");
+		// ms: set networkInput
+		config.network().setInputFile("serengeti-park-network-A.xml.gz");
+
+		// ms: set strategy settings for eickeloh subpopulation
+		StrategyConfigGroup.StrategySettings stratEickelohBeta = new StrategyConfigGroup.StrategySettings();
+		stratEickelohBeta.setStrategyName(DefaultPlanStrategiesModule.DefaultSelector.ChangeExpBeta);
+		stratEickelohBeta.setSubpopulation("eickelohParkplatz");
+		stratEickelohBeta.setWeight(0.9);
+		config.strategy().addStrategySettings(stratEickelohBeta);
+
+		StrategyConfigGroup.StrategySettings stratEickelohReRoute = new StrategyConfigGroup.StrategySettings();
+		stratEickelohReRoute.setStrategyName(DefaultPlanStrategiesModule.DefaultStrategy.ReRoute);
+		stratEickelohReRoute.setSubpopulation("eickelohParkplatz");
+		stratEickelohReRoute.setWeight(0.1);
+		config.strategy().addStrategySettings(stratEickelohReRoute);
+
+
+		//ms:
+		config.controler().setOutputDirectory("./scenarios/measures/output/serengeti-park-A/output-serengeti-park-A-run100visitors");
 
 
 		return config ;

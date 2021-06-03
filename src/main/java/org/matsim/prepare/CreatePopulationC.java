@@ -33,10 +33,14 @@ import org.matsim.core.gbl.MatsimRandom;
 import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.core.utils.geometry.geotools.MGC;
 import org.matsim.core.utils.gis.ShapeFileReader;
+import org.matsim.core.utils.misc.OptionalTime;
+import org.matsim.core.utils.misc.OptionalTimes;
 import org.opengis.feature.simple.SimpleFeature;
 
+import javax.sound.midi.SysexMessage;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -45,40 +49,40 @@ import java.util.Random;
  * @author ikaddoura
  *
  */
-public class MariaCreatePopulationEickelohIncluded {
+public class CreatePopulationC {
 
-	private static final Logger log = Logger.getLogger(MariaCreatePopulationEickelohIncluded.class);
+	private static final Logger log = Logger.getLogger(CreatePopulationC.class);
 
 	private int personCounter = 0;
-	private int numberOfTimeSlots;
+
+	// ms:
+	private final double min_freespeedTT = 0.; //301.;
 
 	private final Map<String, SimpleFeature> features = new HashMap<>();
 	private final Map<Id<Link>, Integer> linkId2numberOfVisitorsSerengetiParkplatz = new HashMap<>();
 	private final Map<Id<Link>, Integer> linkId2numberOfVisitorsWasserland = new HashMap<>();
 	private final Map<Id<Link>, Integer> linkId2numberOfVisitorsSerengetiPark = new HashMap<>();
-	private final Map<Id<Link>, Integer> linkId2numberOfVisitorsEickelohParkplatz = new HashMap<>();
 
-
+	private final String activityType = "park";
+	private final String parkingActivityType = "parking";
 	private final String serengetiParkplatzDestination = "serengetiParkplatz";
 	private final String wasserlandParkplatzDestination = "wasserlandParkplatz";
 	private final String serengetiParkDestination = "serengetiPark";
-	private final String eickelohParkplatzDestination = "eickelohParkplatz";
 
 	private final String serengetiParkplatzShp = "./original-input-data/shp-files/serengeti-parkplatz/serengeti-parkplatz.shp";
 	private final String wasserlandParkplatzShp = "./original-input-data/shp-files/wasserland-parkplatz/wasserland-parkplatz.shp";
 	private final String serengetiParkShp = "./original-input-data/shp-files/serengeti-park/serengeti-park.shp";
-	private final String eickelohParkplatzShp = "./original-input-data/shp-files/eickeloh-parkplatz/eickeloh-parkplatz.shp";
 
 	public static void main(String[] args) throws IOException {
 
-		final String networkFile = "./scenarios/serengeti-park-v1.0/input/serengeti-park-network-with-eickeloh-v1.0.xml.gz";
-		final String outputFilePopulation = "./scenarios/serengeti-park-v1.0/input/serengeti-park-population-v1.0.xml.gz";
+		final String networkFile = "./scenarios/measures/input/serengeti-park-network-C.xml.gz";
+		final String outputFilePopulation = "./scenarios/measures/input/serengeti-park-population-C.xml.gz";
 
 		Config config = ConfigUtils.createConfig();
 		config.network().setInputFile(networkFile);
 		Scenario scenario = ScenarioUtils.loadScenario(config);
 
-		MariaCreatePopulationEickelohIncluded popGenerator = new MariaCreatePopulationEickelohIncluded(500, 200, 200, 200, 1);
+		CreatePopulationC popGenerator = new CreatePopulationC(1000, 675, 1569);
 		popGenerator.run(scenario);
 
 		new PopulationWriter(scenario.getPopulation(), scenario.getNetwork()).write(outputFilePopulation);
@@ -86,10 +90,7 @@ public class MariaCreatePopulationEickelohIncluded {
 
 	}
 
-
-	public MariaCreatePopulationEickelohIncluded(int numberOfSafariVisitors, int safariParkplatzVisitors, int wasserlandParkplatzVisitors, int eickelohParkplatzVisitors, int numberOfTimeSlots) throws IOException {
-
-		this.numberOfTimeSlots = numberOfTimeSlots;
+	public CreatePopulationC(int numberOfSafariVisitors, int safariParkplatzVisitors, int wasserlandParkplatzVisitors) throws IOException {
 
 		// capacity 675
 		linkId2numberOfVisitorsSerengetiParkplatz.put(Id.createLinkId("2344590910000r"), (int) (safariParkplatzVisitors * 0.8)); // Motorway
@@ -104,10 +105,6 @@ public class MariaCreatePopulationEickelohIncluded {
 		linkId2numberOfVisitorsSerengetiPark.put(Id.createLinkId("2344590910000r"), (int) (numberOfSafariVisitors * 0.8)); // Motorway
 		linkId2numberOfVisitorsSerengetiPark.put(Id.createLinkId("44371520007f"), (int) (numberOfSafariVisitors * 0.1)); // North
 		linkId2numberOfVisitorsSerengetiPark.put(Id.createLinkId("377320760000r"), (int) (numberOfSafariVisitors * 0.1)); // Hodenhagen
-
-		linkId2numberOfVisitorsEickelohParkplatz.put(Id.createLinkId("2344590910000r"), (int) (eickelohParkplatzVisitors * 0.8)); // Motorway
-		linkId2numberOfVisitorsEickelohParkplatz.put(Id.createLinkId("44371520007f"), (int) (eickelohParkplatzVisitors * 0.1)); // North
-		linkId2numberOfVisitorsEickelohParkplatz.put(Id.createLinkId("377320760000r"), (int) (eickelohParkplatzVisitors * 0.1)); // Hodenhagen
 		
 		log.info("Reading shp files...");
 
@@ -137,75 +134,39 @@ public class MariaCreatePopulationEickelohIncluded {
 			}
 			it.close();
 		}
-
-		{
-			SimpleFeatureIterator it = ShapeFileReader.readDataFile(eickelohParkplatzShp).getFeatures().features();
-			while (it.hasNext()) {
-				SimpleFeature ft = it.next();
-				features.put(this.eickelohParkplatzDestination, ft);
-			}
-			it.close();
-		}
 		
 		log.info("Reading shp files... Done.");
 		
 	}
 
-
 	public Scenario run(Scenario scenario) {
 
 		Random rnd = MatsimRandom.getRandom();
 
-			//divide the visitor numbers for SerengetiPark into numberOfTimeSlots slots and add each to a new map
-			Map<Id<Link>, Integer> partOfLinkId2numberOfVisitorsSerengetiParkplatz = new HashMap<>();
-			//Zuweisung: ES WIRD GECASTET
-			for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiParkplatz.keySet()) {
-				partOfLinkId2numberOfVisitorsSerengetiParkplatz.put(linkId, (int) linkId2numberOfVisitorsSerengetiParkplatz.get(linkId) / this.numberOfTimeSlots);
-			}
-			// create visitors for each slot
-			for (int i = 0; i < numberOfTimeSlots; i++) {
-				for (Id<Link> linkId : partOfLinkId2numberOfVisitorsSerengetiParkplatz.keySet()) {
-					createVisitors(scenario, rnd, linkId, partOfLinkId2numberOfVisitorsSerengetiParkplatz.get(linkId), this.serengetiParkplatzDestination, i+1);
-				}
-			}
-
-			//divide WasserlandParkplatz visitors between the two slots and create visitors for each slot:
-			Map<Id<Link>, Integer> partOfLinkId2numberOfVisitorsWasserland = new HashMap<>();
-
-			for (Id<Link> linkId : linkId2numberOfVisitorsWasserland.keySet()) {
-				partOfLinkId2numberOfVisitorsWasserland.put(linkId, (int) linkId2numberOfVisitorsWasserland.get(linkId) / this.numberOfTimeSlots);
-			}
-
-			for (int i = 0; i < numberOfTimeSlots; i++) {
-				for (Id<Link> linkId : partOfLinkId2numberOfVisitorsWasserland.keySet()) {
-					createVisitors(scenario, rnd, linkId, partOfLinkId2numberOfVisitorsWasserland.get(linkId), this.wasserlandParkplatzDestination, i+1);
-				}
-			}
-
-			//divide SerengetiPark visitors between the two slots and create visitors for each slot:
-			Map<Id<Link>, Integer> partOfLinkId2numberOfVisitorsSerengetiPark = new HashMap<>();
-
-			for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiPark.keySet()) {
-				partOfLinkId2numberOfVisitorsSerengetiPark.put(linkId, (int) linkId2numberOfVisitorsSerengetiPark.get(linkId) / this.numberOfTimeSlots);
-			}
-
-			for (int i = 0; i < numberOfTimeSlots; i++) {
-				for (Id<Link> linkId : partOfLinkId2numberOfVisitorsSerengetiPark.keySet()) {
-					createVisitors(scenario, rnd, linkId, partOfLinkId2numberOfVisitorsSerengetiPark.get(linkId), this.serengetiParkDestination, i+1);
-				}
-			}
-
-		//divide EickelohParkplatz visitors between the two slots and create visitors for each slot:
-		Map<Id<Link>, Integer> partOfLinkId2numberOfVisitorsEickelohParkplatz = new HashMap<>();
-
-		for (Id<Link> linkId : linkId2numberOfVisitorsEickelohParkplatz.keySet()) {
-			partOfLinkId2numberOfVisitorsEickelohParkplatz.put(linkId, (int) linkId2numberOfVisitorsEickelohParkplatz.get(linkId) / this.numberOfTimeSlots);
+		for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiParkplatz.keySet()) {
+			createVisitors(scenario, rnd, linkId, linkId2numberOfVisitorsSerengetiParkplatz.get(linkId), this.serengetiParkplatzDestination);
 		}
 
-		for (int i = 0; i < numberOfTimeSlots; i++) {
-			for (Id<Link> linkId : partOfLinkId2numberOfVisitorsEickelohParkplatz.keySet()) {
-				createVisitors(scenario, rnd, linkId, partOfLinkId2numberOfVisitorsEickelohParkplatz.get(linkId), this.eickelohParkplatzDestination, i+1);
-			}
+		for (Id<Link> linkId : linkId2numberOfVisitorsWasserland.keySet()) {
+			createVisitors(scenario, rnd, linkId, linkId2numberOfVisitorsWasserland.get(linkId), this.wasserlandParkplatzDestination);
+		}
+
+		//first divide the SerengetiPark visitors into number of parking areas groups
+		Map<Id<Link>, Integer> linkId2numberOfVisitorsSerengetiPark_SerengetiParkplatzUsers = new HashMap<>();
+		Map<Id<Link>, Integer> linkId2numberOfVisitorsSerengetiPark_WasserlandUsers = new HashMap<>();
+
+		for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiPark.keySet()) {
+			linkId2numberOfVisitorsSerengetiPark_SerengetiParkplatzUsers.put(linkId, (int) linkId2numberOfVisitorsSerengetiPark.get(linkId) / 2); //2=currently available parking lots
+			linkId2numberOfVisitorsSerengetiPark_WasserlandUsers.put(linkId, (int) linkId2numberOfVisitorsSerengetiPark.get(linkId) /2);
+		}
+
+		//create SafariVisitors for each group
+		for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiPark_SerengetiParkplatzUsers.keySet()) {
+			createSafariVisitors(scenario, rnd, linkId, linkId2numberOfVisitorsSerengetiPark_SerengetiParkplatzUsers.get(linkId), this.min_freespeedTT, this.serengetiParkDestination, this.serengetiParkplatzDestination);
+		}
+
+		for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiPark_WasserlandUsers.keySet()) {
+			createSafariVisitors(scenario, rnd, linkId, linkId2numberOfVisitorsSerengetiPark_WasserlandUsers.get(linkId), this.min_freespeedTT, this.serengetiParkDestination, this.wasserlandParkplatzDestination);
 		}
 
 		log.info("Population contains " + personCounter + " agents.");
@@ -213,20 +174,19 @@ public class MariaCreatePopulationEickelohIncluded {
 		return scenario;
 	}
 
-
-	private void createVisitors(Scenario scenario, Random rnd, Id<Link> linkId, double odSum, String type, int timeSlot) {
+	private void createVisitors(Scenario scenario, Random rnd, Id<Link> linkId, double odSum, String type) {
 		Population population = scenario.getPopulation();
 		PopulationFactory popFactory = population.getFactory();
 
 		for (int i = 0; i < odSum; i++) {
-			Person pers = popFactory.createPerson(Id.create("visitor_S"+timeSlot+"_" + personCounter + "_" + linkId.toString() + "-" + type, Person.class));
+			Person pers = popFactory.createPerson(Id.create("visitor_" + personCounter + "_" + linkId.toString() + "-" + type, Person.class));
 
 			Plan plan = popFactory.createPlan();
 
 			Activity startActivity = popFactory.createActivityFromCoord("home", scenario.getNetwork().getLinks().get(linkId).getFromNode().getCoord());
 
 //			double startTime = calculateNormallyDistributedTime(11 * 3600., 1 * 3600.); // normally distributed
-			double startTime = calculateRandomlyDistributedValue((10.+timeSlot-1) * 3600., 1 * 3600.); // randomly distributed
+			double startTime = calculateRandomlyDistributedValue(11 * 3600., 1 * 3600.); // randomly distributed
 
 			startActivity.setEndTime(startTime);
 			plan.addActivity(startActivity);
@@ -237,16 +197,55 @@ public class MariaCreatePopulationEickelohIncluded {
 			Point endPoint = getRandomPointInFeature(rnd, features.get(type));
 			if ( endPoint==null ) log.warn("Point is null.");
 
-			Activity endActivity = popFactory.createActivityFromCoord("parkS"+timeSlot, MGC.point2Coord(endPoint));
-			//MUSS ICH ENDZEIT GEBEN
-			//double parkOverTime = 16 * 3600.;
-			//parkActivity.setEndTime(parkOverTime);
+			Activity endActivity = popFactory.createActivityFromCoord(this.activityType, MGC.point2Coord(endPoint) ) ;
+			plan.addActivity(endActivity);
+
+			pers.addPlan(plan) ;
+			population.addPerson(pers) ;
+
+			pers.getAttributes().putAttribute("subpopulation", type);
+
+			personCounter++;
+		}
+	}
+
+	private void createSafariVisitors(Scenario scenario, Random rnd, Id<Link> linkId, double odSum, double freespeedTT, String finalType, String parkingType) {
+		Population population = scenario.getPopulation();
+		PopulationFactory popFactory = population.getFactory();
+
+		for (int i = 0; i < odSum; i++) {
+			Person pers = popFactory.createPerson(Id.create("visitor_" + personCounter + "_" + linkId.toString() + "-" + finalType + "_" + parkingType, Person.class));
+
+			Plan plan = popFactory.createPlan();
+
+			Activity startActivity = popFactory.createActivityFromCoord("home", scenario.getNetwork().getLinks().get(linkId).getFromNode().getCoord());
+//			double startTime = calculateNormallyDistributedTime(11 * 3600., 1 * 3600.); // normally distributed
+			double startTime = calculateRandomlyDistributedValue(11 * 3600., 1 * 3600.); // randomly distributed
+			startActivity.setEndTime(startTime);
+			plan.addActivity(startActivity);
+
+			Leg leg1 = popFactory.createLeg("car");
+			leg1.setTravelTime(freespeedTT);
+			plan.addLeg(leg1);
+
+			Point parkingPoint = getRandomPointInFeature(rnd, features.get(parkingType));
+			if ( parkingPoint==null ) log.warn("Point is null.");
+
+			Activity parkingActivity = popFactory.createActivityFromCoord(this.parkingActivityType, MGC.point2Coord(parkingPoint));
+			parkingActivity.setEndTime( startTime + leg1.getTravelTime().seconds() + calculateRandomlyDistributedValue(20*60., 5*60.));
+			plan.addActivity(parkingActivity);
+
+			Leg leg2 = popFactory.createLeg("car");
+			plan.addLeg(leg2);
+
+			Id<Link> endLinkId = Id.createLinkId("246929390045f");
+			Activity endActivity = popFactory.createActivityFromLinkId(this.activityType, endLinkId);
 			plan.addActivity(endActivity);
 
 			pers.addPlan(plan);
 			population.addPerson(pers);
 
-			pers.getAttributes().putAttribute("subpopulation", type);
+			pers.getAttributes().putAttribute("subpopulation", finalType);
 
 			personCounter++;
 		}

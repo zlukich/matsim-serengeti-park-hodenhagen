@@ -36,8 +36,7 @@ import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.lanes.Lane;
 import org.matsim.lanes.LanesFactory;
 import org.matsim.lanes.LanesToLinkAssignment;
-import org.matsim.prepare.CreatePopulationWithTimeSlots;
-
+import org.matsim.prepare.CreatePopulationB;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -48,14 +47,14 @@ import java.util.Set;
 * @author ikaddoura
 */
 
-public final class MariaRunSerengetiParkScenarioWithTimeSlots {
+public final class RunSerengetiParkScenarioB {
 
-	private static final Logger log = Logger.getLogger(MariaRunSerengetiParkScenarioWithTimeSlots.class );
+	private static final Logger log = Logger.getLogger(RunSerengetiParkScenarioB.class );
 
-	private final static int totalVisitors = 20;
+	//ms:
+	private final static int totalVisitors = 100;
 	private final static double percentageSafariOwnCar = 0.4;
-	private final static int numberOfTimeSlots = 1;				//not 0
-	private final static double timeSlotDuration = 3600.;		//[s]
+	private final static int timeSlotDuration = 7200;		//[s], 0 for no time slots
 
 	// Supply
 	// 45 sec per veh --> 3600/45 = 80 veh/h per check-in lane
@@ -70,7 +69,7 @@ public final class MariaRunSerengetiParkScenarioWithTimeSlots {
 		}
 		
 		if ( args.length==0 ) {
-			args = new String[] {"./scenarios/serengeti-park-v1.0/input/serengeti-park-config-v1.0.xml"}  ;
+			args = new String[] {"./scenarios/measures/input/serengeti-park-config-v1.0.xml"}  ;
 		}
 
 		Config config = prepareConfig( args ) ;
@@ -104,7 +103,12 @@ public final class MariaRunSerengetiParkScenarioWithTimeSlots {
 				Id.createLinkId("3622817520000f"), Id.createLinkId("3622817520000r"),
 				
 				// longterm parking I guess
-				Id.createLinkId("7232641180000f")
+				Id.createLinkId("7232641180000f"),
+
+				// ms: shortcut links on safari
+				Id.createLinkId("394368960004r"), Id.createLinkId("394368960003r"),
+				Id.createLinkId("394368960002r"), Id.createLinkId("394368960001r"),
+				Id.createLinkId("394368960000r")
 				
 				));
 		
@@ -154,7 +158,6 @@ public final class MariaRunSerengetiParkScenarioWithTimeSlots {
 				link.setNumberOfLanes(numberOfSouthCheckInBooths);
 			}					
 		}
-				
 		
 		Id<Link> linkIdBeforeIntersection = Id.createLinkId("1325764790002f");
 		Id<Link> nextLinkIdLeftTurn = Id.createLinkId("3624560720000f");
@@ -192,15 +195,15 @@ public final class MariaRunSerengetiParkScenarioWithTimeSlots {
 			scenario.getLanes().addLanesToLinkAssignment(laneLinkAssignment);
 		}
 
-		//vehicles "demand": car occupation 3.4
-		//assumptions: 90% of all visitors arrive by own car while 40% of all visitors take the safari by own car
+		// ms:
+		// demand: car occupation 3.4, 90% of all visitors arrive by own car while 40% of all visitors go on safari by own car
 		int ownCarVisitorsVehicles = (int) ( (0.9*totalVisitors) / 3.4);
 		int serengetiParkVehicles = (int) ( (percentageSafariOwnCar * totalVisitors) / 3.4);
 		int carparkVehicles = ownCarVisitorsVehicles - serengetiParkVehicles;
 		int serengetiCarparkVehicles = (int) (carparkVehicles/2);
 		int wasserlandCarparkVehicles = carparkVehicles-serengetiCarparkVehicles;
 
-		CreatePopulationWithTimeSlots createPopulation = new CreatePopulationWithTimeSlots(serengetiParkVehicles, serengetiCarparkVehicles, wasserlandCarparkVehicles, numberOfTimeSlots, timeSlotDuration);
+		CreatePopulationB createPopulation = new CreatePopulationB(serengetiParkVehicles, serengetiCarparkVehicles, wasserlandCarparkVehicles, timeSlotDuration);
 		createPopulation.run(scenario);
 		
 		return scenario;
@@ -221,14 +224,21 @@ public final class MariaRunSerengetiParkScenarioWithTimeSlots {
 						
 		config.plansCalcRoute().setAccessEgressType(PlansCalcRouteConfigGroup.AccessEgressType.accessEgressModeToLink);
 
-		//ms: install numberOfTimeSlots time slots "park_SnumberOfTimeSlots: im 1 stunden abstand ab 10:00 uhr
-		for(int i=0; i<numberOfTimeSlots; i++){
-			PlanCalcScoreConfigGroup.ActivityParams slotDependendParkAct = new PlanCalcScoreConfigGroup.ActivityParams("park_S"+(i+1));
-			slotDependendParkAct.setOpeningTime( 10*3600. + i*timeSlotDuration );
-			slotDependendParkAct.setClosingTime(22*3600.);
-			slotDependendParkAct.setLatestStartTime( 10*3600. + (i+1)*timeSlotDuration );
-			slotDependendParkAct.setTypicalDuration(8*3600.);
-			config.planCalcScore().addActivityParams(slotDependendParkAct);
+		// ms: , install numberOfTimeSlots time slots "park_Sx"
+		if (timeSlotDuration!=0) {
+
+			// opening hours: 10:00-18:00
+			int numberOfTimeSlots = 8*3600 / timeSlotDuration;
+
+			for(int i=0; i<numberOfTimeSlots; i++){
+				PlanCalcScoreConfigGroup.ActivityParams slotDependentParkActivity = new PlanCalcScoreConfigGroup.ActivityParams("park_S"+(i+1));
+				slotDependentParkActivity.setOpeningTime( 10*3600. + i*timeSlotDuration );
+				double closing = 10*3600. + (i+1)*timeSlotDuration;
+				slotDependentParkActivity.setClosingTime( closing );
+				slotDependentParkActivity.setLatestStartTime(  closing - 3600. );
+				slotDependentParkActivity.setTypicalDuration(1*3600.);
+				config.planCalcScore().addActivityParams(slotDependentParkActivity);
+			}
 		}
 
 		config.qsim().setUsingTravelTimeCheckInTeleportation( true );
@@ -236,8 +246,8 @@ public final class MariaRunSerengetiParkScenarioWithTimeSlots {
 		
 		ConfigUtils.applyCommandline( config, typedArgs ) ;
 
-		//ms
-		config.controler().setOutputDirectory("./scenarios/serengeti-park-v1.0/output/output-serengeti-park-v1.0-run20visitors");
+		//ms:
+		config.controler().setOutputDirectory("./scenarios/measures/output/serengeti-park-B/output-serengeti-park-B-run100visitors");
 
 
 		return config ;
