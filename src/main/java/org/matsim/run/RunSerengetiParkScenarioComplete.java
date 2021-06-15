@@ -38,8 +38,9 @@ import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.lanes.Lane;
 import org.matsim.lanes.LanesFactory;
 import org.matsim.lanes.LanesToLinkAssignment;
-import org.matsim.prepare.CreatePopulationABC;
 import org.matsim.prepare.CreatePopulationComplete;
+import org.matsim.prepare.CreatePopulationCompleteTS;
+import org.matsim.prepare.CreatePopulationCompleteTSEdited;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -55,16 +56,17 @@ public final class RunSerengetiParkScenarioComplete {
 	private static final Logger log = Logger.getLogger(RunSerengetiParkScenarioComplete.class );
 
 	//ms:
-	private final static int totalVisitors = 100;
+	private final static int totalVisitors = 200;
 	private final static double percentageSafariOwnCar = 0.4;
-	private final static int timeSlotDuration = 2700;		//[s], 0 for no time slots
+	private final static double percentageVisitorsOwnCar = 0.9;
+	private final static int timeSlotDuration = 0;		//[s], 0 for no time slots
 	private final static double openingTime = 10.;
 	private final static double closingTime = 18.;
-	private final static String[] parkingLots = {"Wasserlandparkplatz", "Serengeti-Parkplatz", "Eickeloh-Parkplatz"}; //
-	private final static boolean measureC =false;
+	private final static String[] parkingLots = {"Wasserlandparkplatz", "Serengeti-Parkplatz"}; // , "Eickeloh-Parkplatz"
+	private final static boolean measureC =true;
 
-	final static String networkFileName = "serengeti-park-network-A.xml.gz";
-	final static String outputDirectory = "./scenarios/output/output-serengeti-park-AB-run100visitors";
+	final static String networkFileName = "serengeti-park-network-C.xml.gz";
+	final static String outputDirectory = "./scenarios/output/output-serengeti-park-C-run200visitors";
 
 
 	// Supply
@@ -74,7 +76,9 @@ public final class RunSerengetiParkScenarioComplete {
 	private final static int numberOfSouthCheckInBooths = 5;
 
 	public static void main(String[] args) throws IOException {
-		
+		long startTime = System.currentTimeMillis();
+
+
 		for (String arg : args) {
 			log.info( arg );
 		}
@@ -88,6 +92,8 @@ public final class RunSerengetiParkScenarioComplete {
 		Scenario scenario = prepareScenario( config ) ;
 		Controler controler = prepareControler( scenario ) ;
 		controler.run();
+		long endTime = System.currentTimeMillis();
+		System.out.printf("Time taken: %d seconds%n", (endTime - startTime)/1000);
 	}
 
 	public static Controler prepareControler( Scenario scenario ) {
@@ -117,29 +123,7 @@ public final class RunSerengetiParkScenarioComplete {
 				Id.createLinkId("7232641180000f"),
 
 				// ms: shortcut links on safari
-				Id.createLinkId("394368960004r"), Id.createLinkId("394368960003r"),
-				Id.createLinkId("394368960002r"), Id.createLinkId("394368960001r"),
-				Id.createLinkId("394368960000r")
-
-				/*// ms: arrival plan c
-
-				//rueckfahrt
-				Id.createLinkId("394368870007f"),
-
-
-				//abbiegen auf mitarbeiterparke
-				Id.createLinkId("3551887010000f"),
-
-				//untere ausfahrt
-				Id.createLinkId("394368880003r"),
-
-
-				//obere ausfahrt
-				Id.createLinkId("2226309730000r"),
-
-				//sperre nordkassen link
-				Id.createLinkId("3624560720000f"),
-				Id.createLinkId("3624560720003f")*/
+				Id.createLinkId("394368960004r")
 				
 				));
 
@@ -179,7 +163,7 @@ public final class RunSerengetiParkScenarioComplete {
 				link.setNumberOfLanes(numberOfNorthCheckInBooths);
 
 			}
-			
+
 			// keep just one link for the south check-in area
 			if (link.getId().toString().equals("5297562640002f")) {
 				link.setCapacity(capacityPerCheckInBooth * numberOfSouthCheckInBooths);
@@ -188,7 +172,8 @@ public final class RunSerengetiParkScenarioComplete {
 				// account for the other check-in links
 				link.setLength(40. * (numberOfSouthCheckInBooths - 1));
 				link.setNumberOfLanes(numberOfSouthCheckInBooths);
-			}					
+			}
+
 		}
 		
 		Id<Link> linkIdBeforeIntersection = Id.createLinkId("1325764790002f");
@@ -230,8 +215,8 @@ public final class RunSerengetiParkScenarioComplete {
 		// ms:
 		// demand: car occupation 3.4, 90% of all visitors arrive by own car while 40% of all visitors go on safari by own car
 		// assumption: parking lot usage equally shared
-		int ownCarVisitorsVehicles = (int) ( (0.9*totalVisitors) / 3.4);
-		int serengetiParkVehicles = (int) ((percentageSafariOwnCar * totalVisitors) / 3.4);
+		int ownCarVisitorsVehicles = (int) ( (percentageVisitorsOwnCar * totalVisitors) / 3.4);
+		int serengetiParkVehicles = (int) ( (percentageSafariOwnCar * totalVisitors) / 3.4);
 		int carparkVehicles = ownCarVisitorsVehicles - serengetiParkVehicles;
 		int serengetiCarparkVehicles = (int) (carparkVehicles/parkingLots.length);
 		int wasserlandCarparkVehicles = (int) (carparkVehicles/parkingLots.length);
@@ -241,8 +226,8 @@ public final class RunSerengetiParkScenarioComplete {
 			eickelohCarparkVehicles = (int) (carparkVehicles/parkingLots.length);
 		}
 
-		CreatePopulationComplete createPopulation = new CreatePopulationComplete(serengetiParkVehicles, serengetiCarparkVehicles, wasserlandCarparkVehicles, eickelohCarparkVehicles, timeSlotDuration, openingTime, closingTime);
-		createPopulation.runBaseCase(scenario);
+		CreatePopulationComplete createPopulation = new CreatePopulationComplete(serengetiParkVehicles, serengetiCarparkVehicles, wasserlandCarparkVehicles, eickelohCarparkVehicles, timeSlotDuration, openingTime, closingTime, parkingLots.length, measureC);
+		createPopulation.run(scenario);
 		
 		return scenario;
 	}

@@ -29,32 +29,42 @@ import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.groups.PlanCalcScoreConfigGroup;
 import org.matsim.core.config.groups.PlansCalcRouteConfigGroup;
 import org.matsim.core.config.groups.QSimConfigGroup.TrafficDynamicsCorrectionApproach;
+import org.matsim.core.config.groups.StrategyConfigGroup;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.controler.OutputDirectoryLogging;
 import org.matsim.core.gbl.Gbl;
+import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule;
 import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.lanes.Lane;
 import org.matsim.lanes.LanesFactory;
 import org.matsim.lanes.LanesToLinkAssignment;
-import org.matsim.prepare.CreatePopulationB;
+import org.matsim.prepare.CreatePopulationCompleteTSEdited;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
 * @author ikaddoura
 */
 
-public final class RunSerengetiParkScenarioB {
+public final class RunAllScenarios {
 
-	private static final Logger log = Logger.getLogger(RunSerengetiParkScenarioB.class );
+	private static final Logger log = Logger.getLogger(RunAllScenarios.class );
 
 	//ms:
-	private final static int totalVisitors = 100;
+	private final static int totalVisitors = 17000;
 	private final static double percentageSafariOwnCar = 0.4;
-	private final static int timeSlotDuration = 7200;		//[s], 0 for no time slots
+	private final static double percentageVisitorsOwnCar = 0.9;
+	private final static double openingTime = 10.;
+	private final static double closingTime = 18.;
+
+	private final int timeSlotDuration;		//[s], 0 for no time slots
+	private final String[] parkingLots; //= {"Wasserlandparkplatz", "Serengeti-Parkplatz"}; // , "Eickeloh-Parkplatz"
+	private final boolean measureC;
+
+	final String networkFileName; // = "serengeti-park-network-C.xml.gz";
+	final String outputDirectory; // = "./scenarios/output/output-serengeti-park-C-run100visitors";
+
 
 	// Supply
 	// 45 sec per veh --> 3600/45 = 80 veh/h per check-in lane
@@ -62,22 +72,65 @@ public final class RunSerengetiParkScenarioB {
 	private final static int numberOfNorthCheckInBooths = 6;
 	private final static int numberOfSouthCheckInBooths = 5;
 
+
 	public static void main(String[] args) throws IOException {
-		
+		long startTime = System.currentTimeMillis();
+
+
 		for (String arg : args) {
 			log.info( arg );
 		}
 		
 		if ( args.length==0 ) {
-			args = new String[] {"./scenarios/measures/input/serengeti-park-config-v1.0.xml"}  ;
+			args = new String[] {"./scenarios/input/serengeti-park-config-v1.0.xml"}  ;
 		}
 
-		Config config = prepareConfig( args ) ;
+		//create cases
+		String[] twoLots = {"Wasserlandparkplatz", "Serengeti-Parkplatz"};
+		String [] threeLots = {"Wasserlandparkplatz", "Serengeti-Parkplatz", "Eickeloh-Parkplatz"};
 
-		Scenario scenario = prepareScenario( config ) ;
-		Controler controler = prepareControler( scenario ) ;
-		controler.run();
+		RunAllScenarios baseScenario = new RunAllScenarios(0, twoLots, false, "v1.0", "v1.0");
+		RunAllScenarios a = new RunAllScenarios(0, threeLots, false, "A", "A");
+		RunAllScenarios b = new RunAllScenarios(7200, twoLots, false, "v1.0", "B");
+		RunAllScenarios c = new RunAllScenarios(0, twoLots, true, "C", "C");
+		RunAllScenarios ab = new RunAllScenarios(7200, threeLots, false, "A", "AB");
+		RunAllScenarios ac = new RunAllScenarios(0, threeLots, true, "AC", "AC");
+		RunAllScenarios bc = new RunAllScenarios(7200, twoLots, true, "C", "BC");
+		RunAllScenarios abc = new RunAllScenarios(7200, threeLots, true, "AC", "ABC");
+
+		List<RunAllScenarios> scenarios = new ArrayList<>();
+		scenarios.add(baseScenario);
+		scenarios.add(a);
+		scenarios.add(b);
+		scenarios.add(c);
+		scenarios.add(ab);
+		scenarios.add(ac);
+		scenarios.add(bc);
+		scenarios.add(abc);
+
+		for (RunAllScenarios s: scenarios) {
+
+			Config config = prepareConfig( args, s.parkingLots, s.timeSlotDuration, s.measureC, s.networkFileName, s.outputDirectory ) ;
+
+			Scenario scenario = prepareScenario( config, s.parkingLots, s.timeSlotDuration, s.measureC);
+			Controler controler = prepareControler( scenario ) ;
+			controler.run();
+			long endTime = System.currentTimeMillis();
+			System.out.printf("Time taken: %d seconds%n", (endTime - startTime)/1000);
+
+		}
+
+
 	}
+
+	public RunAllScenarios(int timeSlotDuration, String[] parkingLots, boolean measureC, String networkIdentifier, String caseIdentifier) {
+		this.timeSlotDuration = timeSlotDuration;
+		this.parkingLots = parkingLots;
+		this.measureC = measureC;
+		this.networkFileName = ("serengeti-park-network-" + networkIdentifier+ ".xml.gz");
+		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run17000visitors");
+	}
+
 
 	public static Controler prepareControler( Scenario scenario ) {
 		
@@ -90,7 +143,7 @@ public final class RunSerengetiParkScenarioB {
 		return controler;
 	}
 	
-	public static Scenario prepareScenario( Config config ) throws IOException {
+	public static Scenario prepareScenario( Config config, String [] parkingLots, int timeSlotDuration, boolean measureC) throws IOException {
 		Gbl.assertNotNull( config );
 		
 		final Scenario scenario = ScenarioUtils.createScenario( config );
@@ -106,11 +159,10 @@ public final class RunSerengetiParkScenarioB {
 				Id.createLinkId("7232641180000f"),
 
 				// ms: shortcut links on safari
-				Id.createLinkId("394368960004r"), Id.createLinkId("394368960003r"),
-				Id.createLinkId("394368960002r"), Id.createLinkId("394368960001r"),
-				Id.createLinkId("394368960000r")
+				Id.createLinkId("394368960004r")
 				
 				));
+
 		
 		Set<Id<Link>> kassenLinks = new HashSet<>(Arrays.asList(
 				// north
@@ -147,7 +199,7 @@ public final class RunSerengetiParkScenarioB {
 				link.setNumberOfLanes(numberOfNorthCheckInBooths);
 
 			}
-			
+
 			// keep just one link for the south check-in area
 			if (link.getId().toString().equals("5297562640002f")) {
 				link.setCapacity(capacityPerCheckInBooth * numberOfSouthCheckInBooths);
@@ -156,7 +208,8 @@ public final class RunSerengetiParkScenarioB {
 				// account for the other check-in links
 				link.setLength(40. * (numberOfSouthCheckInBooths - 1));
 				link.setNumberOfLanes(numberOfSouthCheckInBooths);
-			}					
+			}
+
 		}
 		
 		Id<Link> linkIdBeforeIntersection = Id.createLinkId("1325764790002f");
@@ -197,19 +250,26 @@ public final class RunSerengetiParkScenarioB {
 
 		// ms:
 		// demand: car occupation 3.4, 90% of all visitors arrive by own car while 40% of all visitors go on safari by own car
-		int ownCarVisitorsVehicles = (int) ( (0.9*totalVisitors) / 3.4);
+		// assumption: parking lot usage equally shared
+		int ownCarVisitorsVehicles = (int) ( (percentageVisitorsOwnCar * totalVisitors) / 3.4);
 		int serengetiParkVehicles = (int) ( (percentageSafariOwnCar * totalVisitors) / 3.4);
 		int carparkVehicles = ownCarVisitorsVehicles - serengetiParkVehicles;
-		int serengetiCarparkVehicles = (int) (carparkVehicles/2);
-		int wasserlandCarparkVehicles = carparkVehicles-serengetiCarparkVehicles;
+		int serengetiCarparkVehicles = (int) (carparkVehicles/parkingLots.length);
+		int wasserlandCarparkVehicles = (int) (carparkVehicles/parkingLots.length);
+		int eickelohCarparkVehicles = 0;
 
-		CreatePopulationB createPopulation = new CreatePopulationB(serengetiParkVehicles, serengetiCarparkVehicles, wasserlandCarparkVehicles, timeSlotDuration);
+		if (parkingLots.length == 3) {
+			eickelohCarparkVehicles = (int) (carparkVehicles/parkingLots.length);
+		}
+
+		CreatePopulationCompleteTSEdited createPopulation = new CreatePopulationCompleteTSEdited(serengetiParkVehicles, serengetiCarparkVehicles, wasserlandCarparkVehicles, eickelohCarparkVehicles, timeSlotDuration, openingTime, closingTime, parkingLots.length, measureC);
 		createPopulation.run(scenario);
 		
 		return scenario;
 	}
 
-	public static Config prepareConfig( String [] args, ConfigGroup... customModules ){
+
+	public static Config prepareConfig( String [] args, String [] parkingLots, int timeSlotDuration, boolean measureC, String networkFileName, String outputDirectory, ConfigGroup... customModules){
 		
 		OutputDirectoryLogging.catchLogEntries();
 		
@@ -224,16 +284,39 @@ public final class RunSerengetiParkScenarioB {
 						
 		config.plansCalcRoute().setAccessEgressType(PlansCalcRouteConfigGroup.AccessEgressType.accessEgressModeToLink);
 
+
+		config.qsim().setUsingTravelTimeCheckInTeleportation( true );
+		config.qsim().setTrafficDynamicsCorrectionApproach(TrafficDynamicsCorrectionApproach.INCREASE_NUMBER_OF_LANES);
+		
+		ConfigUtils.applyCommandline( config, typedArgs ) ;
+
+		// ms: set strategy settings for eickeloh subpopulation
+		if (parkingLots.length == 3) {
+
+			StrategyConfigGroup.StrategySettings stratEickelohBeta = new StrategyConfigGroup.StrategySettings();
+			stratEickelohBeta.setStrategyName(DefaultPlanStrategiesModule.DefaultSelector.ChangeExpBeta);
+			stratEickelohBeta.setSubpopulation("eickelohParkplatz");
+			stratEickelohBeta.setWeight(0.9);
+			config.strategy().addStrategySettings(stratEickelohBeta);
+
+			StrategyConfigGroup.StrategySettings stratEickelohReRoute = new StrategyConfigGroup.StrategySettings();
+			stratEickelohReRoute.setStrategyName(DefaultPlanStrategiesModule.DefaultStrategy.ReRoute);
+			stratEickelohReRoute.setSubpopulation("eickelohParkplatz");
+			stratEickelohReRoute.setWeight(0.1);
+			config.strategy().addStrategySettings(stratEickelohReRoute);
+		}
+
 		// ms: , install numberOfTimeSlots time slots "park_Sx"
 		if (timeSlotDuration!=0) {
 
-			// opening hours: 10:00-18:00
-			int numberOfTimeSlots = 8*3600 / timeSlotDuration;
+
+			int numberOfTimeSlots = (int) ( (closingTime-openingTime)*3600 / timeSlotDuration );
+
 
 			for(int i=0; i<numberOfTimeSlots; i++){
 				PlanCalcScoreConfigGroup.ActivityParams slotDependentParkActivity = new PlanCalcScoreConfigGroup.ActivityParams("park_S"+(i+1));
-				slotDependentParkActivity.setOpeningTime( 10*3600. + i*timeSlotDuration );
-				double closing = 10*3600. + (i+1)*timeSlotDuration;
+				slotDependentParkActivity.setOpeningTime( openingTime*3600. + i*timeSlotDuration );
+				double closing = openingTime*3600. + (i+1)*timeSlotDuration;
 				slotDependentParkActivity.setClosingTime( closing );
 				slotDependentParkActivity.setLatestStartTime(  closing - 3600. );
 				slotDependentParkActivity.setTypicalDuration(1*3600.);
@@ -241,13 +324,21 @@ public final class RunSerengetiParkScenarioB {
 			}
 		}
 
-		config.qsim().setUsingTravelTimeCheckInTeleportation( true );
-		config.qsim().setTrafficDynamicsCorrectionApproach(TrafficDynamicsCorrectionApproach.INCREASE_NUMBER_OF_LANES);
-		
-		ConfigUtils.applyCommandline( config, typedArgs ) ;
+		// ms: create parking activity
+		if (measureC) {
+			PlanCalcScoreConfigGroup.ActivityParams parkingActivity = new PlanCalcScoreConfigGroup.ActivityParams("parking");
+			parkingActivity.setOpeningTime(openingTime * 3600.);
+			parkingActivity.setClosingTime(closingTime * 3600.);
+			parkingActivity.setTypicalDuration(0.25 * 3600.);
+			parkingActivity.setMinimalDuration(600.);
+			config.planCalcScore().addActivityParams(parkingActivity);
+		}
 
-		//ms:
-		config.controler().setOutputDirectory("./scenarios/measures/output/serengeti-park-B/output-serengeti-park-B-run100visitors");
+		// ms: set networkInput
+		config.network().setInputFile(networkFileName);
+
+		// ms:
+		config.controler().setOutputDirectory(outputDirectory);
 
 
 		return config ;
