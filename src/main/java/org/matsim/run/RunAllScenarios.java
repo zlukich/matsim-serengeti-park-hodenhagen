@@ -38,6 +38,7 @@ import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.lanes.Lane;
 import org.matsim.lanes.LanesFactory;
 import org.matsim.lanes.LanesToLinkAssignment;
+import org.matsim.prepare.CreatePopulationComplete;
 import org.matsim.prepare.CreatePopulationCompleteTSEdited;
 
 import java.io.IOException;
@@ -52,7 +53,7 @@ public final class RunAllScenarios {
 	private static final Logger log = Logger.getLogger(RunAllScenarios.class );
 
 	//ms:
-	private final static int totalVisitors = 17000;
+	private final static int totalVisitors = 50;
 	private final static double percentageSafariOwnCar = 0.4;
 	private final static double percentageVisitorsOwnCar = 0.9;
 	private final static double openingTime = 10.;
@@ -262,7 +263,7 @@ public final class RunAllScenarios {
 			eickelohCarparkVehicles = (int) (carparkVehicles/parkingLots.length);
 		}
 
-		CreatePopulationCompleteTSEdited createPopulation = new CreatePopulationCompleteTSEdited(serengetiParkVehicles, serengetiCarparkVehicles, wasserlandCarparkVehicles, eickelohCarparkVehicles, timeSlotDuration, openingTime, closingTime, parkingLots.length, measureC);
+		CreatePopulationComplete createPopulation = new CreatePopulationComplete (serengetiParkVehicles, serengetiCarparkVehicles, wasserlandCarparkVehicles, eickelohCarparkVehicles, timeSlotDuration, openingTime, closingTime, parkingLots.length, measureC);
 		createPopulation.run(scenario);
 		
 		return scenario;

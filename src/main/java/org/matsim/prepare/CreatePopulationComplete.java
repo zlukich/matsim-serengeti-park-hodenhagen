@@ -83,14 +83,14 @@ public class CreatePopulationComplete {
 
 	public static void main(String[] args) throws IOException {
 
-		final String networkFile = "./scenarios/input/serengeti-park-network-A.xml.gz";
-		final String outputFilePopulation = "./scenarios/input/population/serengeti-park-population-0.xml.gz";
+		final String networkFile = "./scenarios/input/serengeti-park-network-v1.0.xml.gz";
+		final String outputFilePopulation = "./scenarios/input/population/serengeti-park-population-BaseCase.xml.gz";
 
 		Config config = ConfigUtils.createConfig();
 		config.network().setInputFile(networkFile);
 		Scenario scenario = ScenarioUtils.loadScenario(config);
 
-		// BC: Safari: 2000, each parking lot: 1250
+		// BaseC: Safari: 2000, each parking lot: 1250
 		// A: Safari: 2000, each parking lot: 833
 		// B: Safari: 2000, each parking lot: 1250
 		// C:
@@ -191,85 +191,42 @@ public class CreatePopulationComplete {
 		for (int i=0; i<numberOfTimeSlots; i++) {
 
 			//SerengetiParkplatz
-			Map<Id<Link>, Integer> partOfLinkId2numberOfVisitorsSerengetiParkplatz = new HashMap<>();
 			for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiParkplatz.keySet()) {
-				partOfLinkId2numberOfVisitorsSerengetiParkplatz.put(linkId, (int) (linkId2numberOfVisitorsSerengetiParkplatz.get(linkId) * sharePerTS(i)) );
-			}
-			for (Id<Link> linkId : partOfLinkId2numberOfVisitorsSerengetiParkplatz.keySet()) {
-				createVisitors(scenario, rnd, linkId, partOfLinkId2numberOfVisitorsSerengetiParkplatz.get(linkId), this.serengetiParkplatzDestination, i+1);
+				createVisitors(scenario, rnd, linkId, (int) (linkId2numberOfVisitorsSerengetiParkplatz.get(linkId) * sharePerTS(i) ), this.serengetiParkplatzDestination, i+1);
 			}
 
 			//WasserlandParkplatz
-			Map<Id<Link>, Integer> partOfLinkId2numberOfVisitorsWasserlandParkplatz = new HashMap<>();
 			for (Id<Link> linkId : linkId2numberOfVisitorsWasserland.keySet()) {
-				partOfLinkId2numberOfVisitorsWasserlandParkplatz.put(linkId, (int) (linkId2numberOfVisitorsWasserland.get(linkId) * sharePerTS(i)) );
-			}
-			for (Id<Link> linkId : partOfLinkId2numberOfVisitorsWasserlandParkplatz.keySet()) {
-				createVisitors(scenario, rnd, linkId, partOfLinkId2numberOfVisitorsWasserlandParkplatz.get(linkId), this.wasserlandParkplatzDestination, i+1);
+				createVisitors(scenario, rnd, linkId, (int) (linkId2numberOfVisitorsWasserland.get(linkId) * sharePerTS(i) ), this.wasserlandParkplatzDestination, i+1);
 			}
 
 			// Eickeloh Parkplatz
 			if (this.numberOfAvailableParkingLots==3) {
-
-				Map<Id<Link>, Integer> partOfLinkId2numberOfVisitorsEickelohParkplatz = new HashMap<>();
 				for (Id<Link> linkId : linkId2numberOfVisitorsEickelohParkplatz.keySet()) {
-					partOfLinkId2numberOfVisitorsEickelohParkplatz.put(linkId, (int) (linkId2numberOfVisitorsEickelohParkplatz.get(linkId) * sharePerTS(i)) );
-				}
-				for (Id<Link> linkId : partOfLinkId2numberOfVisitorsEickelohParkplatz.keySet()) {
-					createVisitors(scenario, rnd, linkId, partOfLinkId2numberOfVisitorsEickelohParkplatz.get(linkId), this.eickelohParkplatzDestination, i+1);
+					createVisitors(scenario, rnd, linkId, (int) (linkId2numberOfVisitorsEickelohParkplatz.get(linkId) * sharePerTS(i) ), this.eickelohParkplatzDestination, i+1);
 				}
 			}
 
 			//Safari guests
-			Map<Id<Link>, Integer> partOfLinkId2numberOfVisitorsSerengetiPark = new HashMap<>();
-
-			for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiPark.keySet()) {
-				partOfLinkId2numberOfVisitorsSerengetiPark.put(linkId, (int) (linkId2numberOfVisitorsSerengetiPark.get(linkId) * sharePerTS(i)) );
-			}
-
 			if (!measureC) {
-				for (Id<Link> linkId : partOfLinkId2numberOfVisitorsSerengetiPark.keySet()) {
-					createSafariVisitors(scenario, rnd, linkId, partOfLinkId2numberOfVisitorsSerengetiPark.get(linkId), this.serengetiParkDestination, "", i+1);
+
+				for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiPark.keySet()) {
+					createSafariVisitors(scenario, rnd, linkId, (int) (linkId2numberOfVisitorsSerengetiPark.get(linkId) * sharePerTS(i) ), this.serengetiParkDestination, "", i+1);
 				}
+
 			} else if (this.numberOfAvailableParkingLots==2){ //cases C and BC
-				// divide SerengetiPark visitors into numberOfParkingLots groups and create SafariVisitors for each group
-				Map<Id<Link>, Integer> partOfLinkId2numberOfVisitorsSerengetiPark_SerengetiParkplatzUsers = new HashMap<>();
-				Map<Id<Link>, Integer> partOfLinkId2numberOfVisitorsSerengetiPark_WasserlandUsers = new HashMap<>();
 
-				for (Id<Link> linkId : partOfLinkId2numberOfVisitorsSerengetiPark.keySet()) {
-					partOfLinkId2numberOfVisitorsSerengetiPark_SerengetiParkplatzUsers.put(linkId, (int) partOfLinkId2numberOfVisitorsSerengetiPark.get(linkId) / this.numberOfAvailableParkingLots);
-					partOfLinkId2numberOfVisitorsSerengetiPark_WasserlandUsers.put(linkId, (int) partOfLinkId2numberOfVisitorsSerengetiPark.get(linkId) /this.numberOfAvailableParkingLots);
-				}
-
-				for (Id<Link> linkId : partOfLinkId2numberOfVisitorsSerengetiPark_SerengetiParkplatzUsers.keySet()) {
-					createSafariVisitors(scenario, rnd, linkId, partOfLinkId2numberOfVisitorsSerengetiPark_SerengetiParkplatzUsers.get(linkId), this.serengetiParkDestination, this.serengetiParkplatzDestination, i+1);
-				}
-				for (Id<Link> linkId : partOfLinkId2numberOfVisitorsSerengetiPark_WasserlandUsers.keySet()) {
-					createSafariVisitors(scenario, rnd, linkId, partOfLinkId2numberOfVisitorsSerengetiPark_WasserlandUsers.get(linkId), this.serengetiParkDestination, this.wasserlandParkplatzDestination, i+1);
+				for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiPark.keySet()) {
+					createSafariVisitors(scenario, rnd, linkId, (int) (linkId2numberOfVisitorsSerengetiPark.get(linkId) * sharePerTS(i) / this.numberOfAvailableParkingLots), this.serengetiParkDestination, this.serengetiParkplatzDestination, i+1);
+					createSafariVisitors(scenario, rnd, linkId, (int) (linkId2numberOfVisitorsSerengetiPark.get(linkId) * sharePerTS(i) / this.numberOfAvailableParkingLots), this.serengetiParkDestination, this.wasserlandParkplatzDestination,i+1);
 				}
 
 			} else { //cases AC and ABC
-				Map<Id<Link>, Integer> partOfLinkId2numberOfVisitorsSerengetiPark_SerengetiParkplatzUsers = new HashMap<>();
-				Map<Id<Link>, Integer> partOfLinkId2numberOfVisitorsSerengetiPark_WasserlandUsers = new HashMap<>();
-				Map<Id<Link>, Integer> partOfLinkId2numberOfVisitorsSerengetiPark_EickelohParkplatzUsers = new HashMap<>();
 
-				for (Id<Link> linkId : partOfLinkId2numberOfVisitorsSerengetiPark.keySet()) {
-					partOfLinkId2numberOfVisitorsSerengetiPark_SerengetiParkplatzUsers.put(linkId, (int) partOfLinkId2numberOfVisitorsSerengetiPark.get(linkId) / this.numberOfAvailableParkingLots);
-					partOfLinkId2numberOfVisitorsSerengetiPark_WasserlandUsers.put(linkId, (int) partOfLinkId2numberOfVisitorsSerengetiPark.get(linkId) /this.numberOfAvailableParkingLots);
-					partOfLinkId2numberOfVisitorsSerengetiPark_EickelohParkplatzUsers.put(linkId, (int) partOfLinkId2numberOfVisitorsSerengetiPark.get(linkId) /this.numberOfAvailableParkingLots);
-
-				}
-
-				for (Id<Link> linkId : partOfLinkId2numberOfVisitorsSerengetiPark_SerengetiParkplatzUsers.keySet()) {
-					createSafariVisitors(scenario, rnd, linkId, partOfLinkId2numberOfVisitorsSerengetiPark_SerengetiParkplatzUsers.get(linkId), this.serengetiParkDestination, this.serengetiParkplatzDestination, i+1);
-				}
-
-				for (Id<Link> linkId : partOfLinkId2numberOfVisitorsSerengetiPark_WasserlandUsers.keySet()) {
-					createSafariVisitors(scenario, rnd, linkId, partOfLinkId2numberOfVisitorsSerengetiPark_WasserlandUsers.get(linkId), this.serengetiParkDestination, this.wasserlandParkplatzDestination, i+1);
-				}
-
-				for (Id<Link> linkId : partOfLinkId2numberOfVisitorsSerengetiPark_EickelohParkplatzUsers.keySet()) {
-					createSafariVisitors(scenario, rnd, linkId, partOfLinkId2numberOfVisitorsSerengetiPark_EickelohParkplatzUsers.get(linkId), this.serengetiParkDestination, this.eickelohParkplatzDestination, i+1);
+				for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiPark.keySet()) {
+					createSafariVisitors(scenario, rnd, linkId, (int) (linkId2numberOfVisitorsSerengetiPark.get(linkId) * sharePerTS(i) / this.numberOfAvailableParkingLots), this.serengetiParkDestination, this.serengetiParkplatzDestination,i+1);
+					createSafariVisitors(scenario, rnd, linkId, (int) (linkId2numberOfVisitorsSerengetiPark.get(linkId) * sharePerTS(i) / this.numberOfAvailableParkingLots), this.serengetiParkDestination, this.wasserlandParkplatzDestination,i+1);
+					createSafariVisitors(scenario, rnd, linkId, (int) (linkId2numberOfVisitorsSerengetiPark.get(linkId) * sharePerTS(i) / this.numberOfAvailableParkingLots), this.serengetiParkDestination, this.eickelohParkplatzDestination,i+1);
 				}
 
 			}
@@ -513,7 +470,8 @@ public class CreatePopulationComplete {
 		if (this.numberOfTimeSlots==1) {
 			return 1;
 		} else {
-			return -0.0517*i*i + 0.1695*i + 0.1768; //samstag, vier ts
+			//return -0.0517*i*i + 0.1695*i + 0.1768; //samstag, vier ts UNSINNIGE PROGNOSE GLAUB ICH
+			return -0.2006*i*i*i + 0.8519*i*i - 0.8827*i + 0.3981; //samstag, vier ts, sinnvollere prognose, der letzte slot wird nicht genutzt
 //			return 0.25;							//gleichverteilt, vier ts
 		}
 	}
