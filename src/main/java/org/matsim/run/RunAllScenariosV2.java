@@ -17,6 +17,7 @@
  *                                                                         *
  * *********************************************************************** */
 
+
 package org.matsim.run;
 
 import org.apache.log4j.Logger;
@@ -39,39 +40,44 @@ import org.matsim.lanes.Lane;
 import org.matsim.lanes.LanesFactory;
 import org.matsim.lanes.LanesToLinkAssignment;
 import org.matsim.prepare.CreatePopulationComplete;
-import org.matsim.prepare.CreatePopulationCompleteTSEdited;
+import org.matsim.prepare.CreatePopulationV2;
 
 import java.io.IOException;
 import java.util.*;
 
 /**
-* @author ikaddoura
-*/
+ *
+ * @author ikaddoura
+ *
+ */
 
-public final class RunAllScenarios {
 
-	private static final Logger log = Logger.getLogger(RunAllScenarios.class );
 
-	//ms:
+public final class RunAllScenariosV2 {
+
+	private static final Logger log = Logger.getLogger(RunAllScenariosV2.class );
+
 	private final static int totalVisitors = 17000;
-	private final static double percentageSafariOwnCar = 0.4;
+	private final static double percentageSafariOwnCar = 0.5;
 	private final static double percentageVisitorsOwnCar = 0.9;
-	private final static double openingTime = 10*3600.;
-	private final static double closingTime = 18*3600.;
+	private final static double checkInOpeningTime = 9.5*3600.;
+	private final static double checkInClosingTime = 16.5*3600.; // check-in closing at 16:00 at the earliest  & 2 h before park closing time at the latest
+	private final static double parkClosingTime = 18.5*3600;
+	private final static double walkingTime = 198.;
+	//
 
-	private final int timeSlotDuration;		//[s], 0 for no time slots
-	private final String[] parkingLots; //= {"Wasserlandparkplatz", "Serengeti-Parkplatz"}; // , "Eickeloh-Parkplatz"
-	private final boolean measureC;
+	private final String[] parkingLots; //= {"Wasserlandparkplatz", "Serengeti-Parkplatz"}; // {"Eickeloh-Parkplatz"}
+	private final int numberOfTimeSlots;	// 1 for no slot system, e.g. 4 slots: 7h / 4 slots => 1.75 h - slot => sharePerTS in CreatePopulationV2 anpassen!
 
-	final String networkFileName; // = "serengeti-park-network-C.xml.gz";
-	final String outputDirectory; // = "./scenarios/output/output-serengeti-park-C-run100visitors";
-
+	final String networkFileName; // = e.g. "serengeti-park-network-v1.0.xml.gz";
+	final String outputDirectory; // = e.g. "./scenarios/output/output-serengeti-park-v1.0-run17000visitors";
 
 	// Supply
 	// 45 sec per veh --> 3600/45 = 80 veh/h per check-in lane
 	private final static int capacityPerCheckInBooth = 80;
+	private final static int numberOfUltimateCheckInBooths = 7;
 	private final static int numberOfNorthCheckInBooths = 6;
-	private final static int numberOfSouthCheckInBooths = 5;
+	private final static int numberOfSouthCheckInBooths = 7;
 
 
 	public static void main(String[] args) throws IOException {
@@ -81,39 +87,30 @@ public final class RunAllScenarios {
 		for (String arg : args) {
 			log.info( arg );
 		}
-		
+
 		if ( args.length==0 ) {
 			args = new String[] {"./scenarios/input/serengeti-park-config-v1.0.xml"}  ;
 		}
 
 		//create cases
 		String[] twoLots = {"Wasserlandparkplatz", "Serengeti-Parkplatz"};
-		String [] threeLots = {"Wasserlandparkplatz", "Serengeti-Parkplatz", "Eickeloh-Parkplatz"};
+		String [] oneLotEickeloh = {"Eickeloh-Parkplatz"};
+		RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1,"v1.0", "v1.0");
+		RunAllScenariosV2 eickelohOpen = new RunAllScenariosV2(oneLotEickeloh, 1,"EickelohOpen", "eickelohOpen");
+		RunAllScenariosV2 timeSlots = new RunAllScenariosV2(twoLots, 4,"v1.0", "TimeSlots");
+		RunAllScenariosV2 eickelohOpenAndTimeSlots = new RunAllScenariosV2(oneLotEickeloh, 4,"EickelohOpen", "eickelohOpenAndTimeSlots");
 
-		//RunAllScenarios baseScenario = new RunAllScenarios(0, twoLots, false, "v1.0", "v1.0");
-		/*RunAllScenarios a = new RunAllScenarios(0, threeLots, false, "A", "A");
-		RunAllScenarios b = new RunAllScenarios(7200, twoLots, false, "v1.0", "B");*/
-		RunAllScenarios c = new RunAllScenarios(0, twoLots, true, "C", "C");
-	/*	RunAllScenarios ab = new RunAllScenarios(7200, threeLots, false, "A", "AB");
-		RunAllScenarios ac = new RunAllScenarios(0, threeLots, true, "AC", "AC");
-		RunAllScenarios bc = new RunAllScenarios(7200, twoLots, true, "C", "BC");
-		RunAllScenarios abc = new RunAllScenarios(7200, threeLots, true, "AC", "ABC");*/
+		List<RunAllScenariosV2> scenarios = new ArrayList<>();
+		scenarios.add(baseScenario);
+		scenarios.add(eickelohOpen);
+		scenarios.add(timeSlots);
+		scenarios.add(eickelohOpenAndTimeSlots);
 
-		List<RunAllScenarios> scenarios = new ArrayList<>();
-		/*scenarios.add(baseScenario);
-		scenarios.add(a);
-		scenarios.add(b);*/
-		scenarios.add(c);
-		/*scenarios.add(ab);
-		scenarios.add(ac);
-		scenarios.add(bc);
-		scenarios.add(abc);*/
+		for (RunAllScenariosV2 s: scenarios) {
 
-		for (RunAllScenarios s: scenarios) {
+			Config config = prepareConfig( args, s.parkingLots, s.numberOfTimeSlots, s.networkFileName, s.outputDirectory ) ;
 
-			Config config = prepareConfig( args, s.parkingLots, s.timeSlotDuration, s.measureC, s.networkFileName, s.outputDirectory ) ;
-
-			Scenario scenario = prepareScenario( config, s.parkingLots, s.timeSlotDuration, s.measureC);
+			Scenario scenario = prepareScenario( config, s.parkingLots, s.numberOfTimeSlots);
 			Controler controler = prepareControler( scenario ) ;
 			controler.run();
 			long endTime = System.currentTimeMillis();
@@ -121,15 +118,14 @@ public final class RunAllScenarios {
 
 		}
 
-
 	}
 
-	public RunAllScenarios(int timeSlotDuration, String[] parkingLots, boolean measureC, String networkIdentifier, String caseIdentifier) {
-		this.timeSlotDuration = timeSlotDuration;
+	//networkIdentifier: either v1.0 or EickelohOpen, caseIdentifier: either v1.0, EickelohOpen, TimeSlots or EickelohOpenAndTimeSlots
+	public RunAllScenariosV2(String[] parkingLots, int numberOfTimeSlots, String networkIdentifier, String caseIdentifier) {
 		this.parkingLots = parkingLots;
-		this.measureC = measureC;
+		this.numberOfTimeSlots = numberOfTimeSlots;
 		this.networkFileName = ("serengeti-park-network-" + networkIdentifier+ ".xml.gz");
-		this.outputDirectory = ("./scenarios/output/output-BaseCaseRdmVerteilt/output-serengeti-park-" + caseIdentifier + "-run17000visitors");
+		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run" + totalVisitors + "visitors");
 	}
 
 
@@ -143,8 +139,9 @@ public final class RunAllScenarios {
 		
 		return controler;
 	}
-	
-	public static Scenario prepareScenario( Config config, String [] parkingLots, int timeSlotDuration, boolean measureC) throws IOException {
+
+
+	public static Scenario prepareScenario( Config config, String [] parkingLots, int numberOfTimeSlots ) throws IOException {
 		Gbl.assertNotNull( config );
 		
 		final Scenario scenario = ScenarioUtils.createScenario( config );
@@ -152,10 +149,9 @@ public final class RunAllScenarios {
 		
 		Set<Id<Link>> forCarsRestrictedLinks = new HashSet<>(Arrays.asList(
 				
-				// bus lane!
-				Id.createLinkId("3622817410000f"), Id.createLinkId("3622817410000r"),
-				Id.createLinkId("3622817520000f"), Id.createLinkId("3622817520000r"),
-				
+				// ultimate check-in path (actually bus lane) should be unidirectional
+				Id.createLinkId("3622817520000r"), Id.createLinkId("3622817410000f"),
+
 				// longterm parking I guess
 				Id.createLinkId("7232641180000f"),
 
@@ -184,9 +180,9 @@ public final class RunAllScenarios {
 				link.setCapacity(0.);
 			}
 
-			// ms: hier beginnen dinge die im massnahmenfall c nicht relevant sind
+			// ms: hier beginnen dinge die nur relevant sind wenn eickeloh nicht geoeffnet ist
 
-			if (!measureC) {
+			if (parkingLots.length > 1) {
 
 				// use single check-in link instead of several parallel check-in links...
 				if (kassenLinks.contains(link.getId())) {
@@ -215,12 +211,17 @@ public final class RunAllScenarios {
 					link.setNumberOfLanes(numberOfSouthCheckInBooths);
 				}
 
+				// install ultimate check-in booth next to main access link
+				if (link.getId().toString().equals("3622817410000r")) {
+					link.setCapacity(capacityPerCheckInBooth * numberOfUltimateCheckInBooths);
+				}
+
 			}
 
 		}
 
-		// ms: ebenfalls dinge die im massnahmenfall c nicht relevant sind
-		if (!measureC) {
+		// ms: ebenfalls dinge die im massnahmenfall eickeloh geoeffnet nicht relevant sind
+		if (parkingLots.length > 1) {
 
 			Id<Link> linkIdBeforeIntersection = Id.createLinkId("1325764790002f");
 			Id<Link> nextLinkIdLeftTurn = Id.createLinkId("3624560720000f");
@@ -259,28 +260,33 @@ public final class RunAllScenarios {
 			}
 		}
 
-		// ms:
-		// demand: car occupation 3.4, 90% of all visitors arrive by own car while 40% of all visitors go on safari by own car
+		// demand: car occupation 3.4, 90% of all visitors arrive by own car while 50% of all visitors go on safari by own car
 		// assumption: parking lot usage equally shared
 		int ownCarVisitorsVehicles = (int) ( (percentageVisitorsOwnCar * totalVisitors) / 3.4);
 		int serengetiParkVehicles = (int) ( (percentageSafariOwnCar * totalVisitors) / 3.4);
 		int carparkVehicles = ownCarVisitorsVehicles - serengetiParkVehicles;
-		int serengetiCarparkVehicles = (int) (carparkVehicles/parkingLots.length);
-		int wasserlandCarparkVehicles = (int) (carparkVehicles/parkingLots.length);
-		int eickelohCarparkVehicles = 0;
+		int serengetiCarparkVehicles;
+		int wasserlandCarparkVehicles;
+		int eickelohCarparkVehicles;
 
-		if (parkingLots.length == 3) {
-			eickelohCarparkVehicles = (int) (carparkVehicles/parkingLots.length);
+		if (parkingLots.length > 1) {
+			serengetiCarparkVehicles = (int) (carparkVehicles / parkingLots.length);
+			wasserlandCarparkVehicles = (int) (carparkVehicles / parkingLots.length);
+			eickelohCarparkVehicles = 0;
+		} else {
+			serengetiCarparkVehicles = 0;
+			wasserlandCarparkVehicles = 0;
+			eickelohCarparkVehicles = carparkVehicles;
 		}
 
-		CreatePopulationComplete createPopulation = new CreatePopulationComplete (serengetiParkVehicles, serengetiCarparkVehicles, wasserlandCarparkVehicles, eickelohCarparkVehicles, timeSlotDuration, openingTime, closingTime, parkingLots.length, measureC);
+		CreatePopulationV2 createPopulation = new CreatePopulationV2 (serengetiParkVehicles, serengetiCarparkVehicles, wasserlandCarparkVehicles, eickelohCarparkVehicles, parkingLots.length, numberOfTimeSlots, checkInOpeningTime, checkInClosingTime);
 		createPopulation.run(scenario);
 		
 		return scenario;
 	}
 
 
-	public static Config prepareConfig( String [] args, String [] parkingLots, int timeSlotDuration, boolean measureC, String networkFileName, String outputDirectory, ConfigGroup... customModules){
+	public static Config prepareConfig( String [] args, String [] parkingLots, int numberOfTimeSlots, String networkFileName, String outputDirectory, ConfigGroup... customModules){
 		
 		OutputDirectoryLogging.catchLogEntries();
 		
@@ -301,9 +307,14 @@ public final class RunAllScenarios {
 		
 		ConfigUtils.applyCommandline( config, typedArgs ) ;
 
-		// ms: set strategy settings for eickeloh subpopulation
-		if (parkingLots.length == 3) {
+		config.planCalcScore().getActivityParams("park").setOpeningTime( checkInOpeningTime );
+		config.planCalcScore().getActivityParams("park").setClosingTime( parkClosingTime );
+		config.planCalcScore().getActivityParams("park").setTypicalDuration( 4 * 3600. );
 
+
+		if (parkingLots.length != 2) {
+
+			// set strategy settings for eickeloh subpopulation
 			StrategyConfigGroup.StrategySettings stratEickelohBeta = new StrategyConfigGroup.StrategySettings();
 			stratEickelohBeta.setStrategyName(DefaultPlanStrategiesModule.DefaultSelector.ChangeExpBeta);
 			stratEickelohBeta.setSubpopulation("eickelohParkplatz");
@@ -315,40 +326,36 @@ public final class RunAllScenarios {
 			stratEickelohReRoute.setSubpopulation("eickelohParkplatz");
 			stratEickelohReRoute.setWeight(0.1);
 			config.strategy().addStrategySettings(stratEickelohReRoute);
+
+			// create parking activity
+			PlanCalcScoreConfigGroup.ActivityParams parkingActivity = new PlanCalcScoreConfigGroup.ActivityParams("parking");
+			parkingActivity.setOpeningTime(checkInOpeningTime);
+			parkingActivity.setClosingTime( checkInClosingTime + (2*3600.) );
+			parkingActivity.setTypicalDuration( walkingTime + (4.5*60) ); // erwartete strecke zu laufen (1 richtung): 130 m, usual pace: 1.31 m/s, erw. dauer alles erledigen: 2-7 min => 468s.
+			parkingActivity.setMinimalDuration(318.); // 198 s + 2*60 s
+			config.planCalcScore().addActivityParams(parkingActivity);
 		}
 
-		// ms: , install numberOfTimeSlots time slots "park_Sx"
-		if (timeSlotDuration!=0) {
+		// install numberOfTimeSlots time slots activity types "park_Sx"
+		if (numberOfTimeSlots>1) {
 
-
-			int numberOfTimeSlots = (int) ( (closingTime-openingTime)*3600 / timeSlotDuration );
-
+			int timeSlotDuration = (int) ( (checkInClosingTime-checkInOpeningTime) / numberOfTimeSlots );
 
 			for(int i=0; i<numberOfTimeSlots; i++){
 				PlanCalcScoreConfigGroup.ActivityParams slotDependentParkActivity = new PlanCalcScoreConfigGroup.ActivityParams("park_S"+(i+1));
-				slotDependentParkActivity.setOpeningTime( openingTime*3600. + i*timeSlotDuration );
-				double closing = openingTime*3600. + (i+1)*timeSlotDuration;
+				slotDependentParkActivity.setOpeningTime( checkInOpeningTime + (i * timeSlotDuration) );
+				double closing = checkInOpeningTime + ( (i+1)*timeSlotDuration );
 				slotDependentParkActivity.setClosingTime( closing );
-				slotDependentParkActivity.setLatestStartTime(  closing - 3600. );
-				slotDependentParkActivity.setTypicalDuration(1*3600.);
+				slotDependentParkActivity.setLatestStartTime(closing);
+				slotDependentParkActivity.setTypicalDuration(4*3600.);
 				config.planCalcScore().addActivityParams(slotDependentParkActivity);
 			}
 		}
 
-		// ms: create parking activity
-		if (measureC) {
-			PlanCalcScoreConfigGroup.ActivityParams parkingActivity = new PlanCalcScoreConfigGroup.ActivityParams("parking");
-			parkingActivity.setOpeningTime(openingTime * 3600.);
-			parkingActivity.setClosingTime(closingTime * 3600.);
-			parkingActivity.setTypicalDuration(0.25 * 3600.);
-			parkingActivity.setMinimalDuration(600.);
-			config.planCalcScore().addActivityParams(parkingActivity);
-		}
-
-		// ms: set networkInput
+		// set networkInput
 		config.network().setInputFile(networkFileName);
 
-		// ms:
+		// set outputDirectory
 		config.controler().setOutputDirectory(outputDirectory);
 
 
