@@ -15,17 +15,17 @@ import java.util.*;
 public class SerengetiParkScenarioAnalysis {
 
     final static String networkFile = "./scenarios/serengeti-park-v1.0/input/serengeti-park-network-v1.0.xml.gz";
-    final static String eventsFileBaseCase = "./scenarios/serengeti-park-v1.0/output/output-serengeti-park-v1.0-run1/serengeti-park-v1.0-run1.output_events.xml.gz";
+    final static String eventsFile = "./scenarios/serengeti-park-v1.0/output/output-serengeti-park-v1.0-run1/serengeti-park-v1.0-run1.output_events.xml.gz";
     final static String accessRoadLinks = "./src/main/java/org/matsim/analyze/input_analysis/LinksAccessRoad.txt";
     final static String safariTourLinks = "./src/main/java/org/matsim/analyze/input_analysis/LinksSafariTour.txt";
     final static String l191Links = "./src/main/java/org/matsim/analyze/input_analysis/LinksL191.txt";
 
     public static void main(String[] args) {
 
-        //calculateFreespeedTTsWholeJourney(eventsFileBaseCase);
-        double [] accessRoadResults = analyzeAccessRoad(eventsFileBaseCase);
-        double [] safariTourResults = analyzeSafariRoad(eventsFileBaseCase);
-        double [] l191Results = analyzeL191(eventsFileBaseCase);
+        //calculateFreespeedTTsWholeJourney(eventsFile);
+        double [] accessRoadResults = analyzeAccessRoad(eventsFile);
+        double [] safariTourResults = analyzeSafariRoad(eventsFile);
+        double [] l191Results = analyzeL191(eventsFile);
 
          try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("./src/main/java/org/matsim/analyze/output_analysis/resultsTTanalysisBaseCase.csv"));
@@ -53,7 +53,7 @@ public class SerengetiParkScenarioAnalysis {
 
 
     //calculate {totalTT, avgTT, maxTT, totalTTLoss} on Access Road
-    private static double[] analyzeAccessRoad(String eventsFile) {
+    private static double[] analyzeSection(String eventsFile) {
         String accessLink = "2344589960000f";
         String exitLink = "3624560720003f";
         EventsManager manager = EventsUtils.createEventsManager();
