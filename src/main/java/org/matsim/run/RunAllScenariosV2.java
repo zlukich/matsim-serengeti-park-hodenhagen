@@ -41,7 +41,7 @@ import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.lanes.Lane;
 import org.matsim.lanes.LanesFactory;
 import org.matsim.lanes.LanesToLinkAssignment;
-import org.matsim.prepare.CreatePopulationComplete;
+
 import org.matsim.prepare.CreatePopulationTimeBasedDemand;
 import org.matsim.prepare.CreatePopulationV2;
 
@@ -61,7 +61,7 @@ public final class RunAllScenariosV2 {
 
 	private static final Logger log = Logger.getLogger(RunAllScenariosV2.class );
 
-	private final static int totalVisitors = 17000;
+	private final static int totalVisitors = 1000;
 	private final static double percentageSafariOwnCar = 0.5;
 	private final static double percentageVisitorsOwnCar = 0.9;
 	private final static double checkInOpeningTime = 9.5*3600.;
@@ -101,7 +101,7 @@ public final class RunAllScenariosV2 {
 		ArrayList<String> eickeloh = new ArrayList<>(Arrays.asList("eickelohParkplatz"));
 
 		RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1,"v1.0", "v1.0");
-		RunAllScenariosV2 eickelohOpen = new RunAllScenariosV2(eickeloh, 1,"EickelohOpen", "eickelohOpen");
+		/*RunAllScenariosV2 eickelohOpen = new RunAllScenariosV2(eickeloh, 1,"EickelohOpen", "eickelohOpen");
 
 		RunAllScenariosV2 fourTimeSlots = new RunAllScenariosV2(twoLots, 4,"v1.0", "4TimeSlots");
 		RunAllScenariosV2 eickelohOpenAndFourTimeSlots = new RunAllScenariosV2(eickeloh, 4,"EickelohOpen", "eickelohOpenAnd4TimeSlots");
@@ -113,11 +113,11 @@ public final class RunAllScenariosV2 {
 		RunAllScenariosV2 eickelohOpenAndSixTimeSlots = new RunAllScenariosV2(eickeloh, 6,"EickelohOpen", "eickelohOpenAnd6TimeSlots");
 
 		RunAllScenariosV2 sevenTimeSlots = new RunAllScenariosV2(twoLots, 7,"v1.0", "7TimeSlots");
-		RunAllScenariosV2 eickelohOpenAndSevenTimeSlots = new RunAllScenariosV2(eickeloh, 7,"EickelohOpen", "eickelohOpenAnd7TimeSlots");
+		RunAllScenariosV2 eickelohOpenAndSevenTimeSlots = new RunAllScenariosV2(eickeloh, 7,"EickelohOpen", "eickelohOpenAnd7TimeSlots");*/
 
 		List<RunAllScenariosV2> scenarios = new ArrayList<>();
 		scenarios.add(baseScenario);
-		scenarios.add(eickelohOpen);
+		/*scenarios.add(eickelohOpen);
 
 		scenarios.add(fourTimeSlots);
 		scenarios.add(eickelohOpenAndFourTimeSlots);
@@ -129,7 +129,7 @@ public final class RunAllScenariosV2 {
 		scenarios.add(eickelohOpenAndSixTimeSlots);
 
 		scenarios.add(sevenTimeSlots);
-		scenarios.add(eickelohOpenAndSevenTimeSlots);
+		scenarios.add(eickelohOpenAndSevenTimeSlots);*/
 
 
 		for (RunAllScenariosV2 s: scenarios) {
@@ -239,7 +239,7 @@ public final class RunAllScenariosV2 {
 				}
 
 				// keep just one link for the south check-in area
-				if (link.getId().toString().equals("5297562640002f")) {
+				if (link.getId().toString().equals("2184588440002f")) {
 					link.setCapacity(capacityPerCheckInBooth * numberOfSouthCheckInBooths);
 					link.setFreespeed(2.7777);
 

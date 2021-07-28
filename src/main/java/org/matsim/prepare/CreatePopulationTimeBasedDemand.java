@@ -56,8 +56,8 @@ public class CreatePopulationTimeBasedDemand {
 
 	private static final Logger log = Logger.getLogger(CreatePopulationTimeBasedDemand.class);
 
-//	private final ArrayList<Double> hourlyDemand = new ArrayList<>( Arrays. asList(0.153808594, 0.304199219, 0.314453125, 0.141113281, 0.055175781, 0.024902344, 0.006347656, 0.) );
-	private final ArrayList<Double> hourlyDemand = new ArrayList<>( Arrays. asList(0.153808594, 0.152099609, 0.152099609, 0.157226563, 0.157226563, 0.070556641, 0.070556641, 0.027587891, 0.027587891, 0.012451172, 0.012451172, 0.003173828, 0.003173828) ); // 0.5-hourly demand
+//	private final ArrayList<Double> timeBasedDemand = new ArrayList<>( Arrays. asList(0.153808594, 0.304199219, 0.314453125, 0.141113281, 0.055175781, 0.024902344, 0.006347656, 0.) );
+	private final ArrayList<Double> timeBasedDemand = new ArrayList<>( Arrays. asList(0.153808594, 0.152099609, 0.152099609, 0.157226563, 0.157226563, 0.070556641, 0.070556641, 0.027587891, 0.027587891, 0.012451172, 0.012451172, 0.003173828, 0.003173828) ); // 0.5-hourly demand
 
 	private int personCounter = 0;
 	private final double avg_freespeedTravelTime = 231.;
@@ -196,26 +196,26 @@ public class CreatePopulationTimeBasedDemand {
 
 		if (numberOfTimeSlots==1) {
 
-			for (int i = 0; i < hourlyDemand.size(); i ++) {
+			for (int i = 0; i < timeBasedDemand.size(); i ++) {
 
 				//WasserlandParkplatz
 				if (availableParkingLots.contains(wasserlandParkplatzDestination)) {
 					for (Id<Link> linkId : linkId2numberOfVisitorsWasserland.keySet()) {
-						createVisitors(scenario, rnd, linkId, (int) ( linkId2numberOfVisitorsWasserland.get(linkId) * hourlyDemand.get(i) ), this.wasserlandParkplatzDestination, i);
+						createVisitors(scenario, rnd, linkId, (int) ( linkId2numberOfVisitorsWasserland.get(linkId) * timeBasedDemand.get(i) ), this.wasserlandParkplatzDestination, i);
 					}
 				}
 
 				//SerengetiParkplatz
 				if (availableParkingLots.contains(serengetiParkplatzDestination)) {
 					for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiParkplatz.keySet()) {
-						createVisitors(scenario, rnd, linkId, (int) ( linkId2numberOfVisitorsSerengetiParkplatz.get(linkId) * hourlyDemand.get(i) ), this.serengetiParkplatzDestination, i);
+						createVisitors(scenario, rnd, linkId, (int) ( linkId2numberOfVisitorsSerengetiParkplatz.get(linkId) * timeBasedDemand.get(i) ), this.serengetiParkplatzDestination, i);
 					}
 				}
 
 				// Eickeloh-Parkplatz
 				if (availableParkingLots.contains(eickelohParkplatzDestination)) {
 					for (Id<Link> linkId : linkId2numberOfVisitorsEickelohParkplatz.keySet()) {
-						createVisitors(scenario, rnd, linkId, (int) ( linkId2numberOfVisitorsEickelohParkplatz.get(linkId) * hourlyDemand.get(i) ), this.eickelohParkplatzDestination, i);
+						createVisitors(scenario, rnd, linkId, (int) ( linkId2numberOfVisitorsEickelohParkplatz.get(linkId) * timeBasedDemand.get(i) ), this.eickelohParkplatzDestination, i);
 					}
 				}
 
@@ -223,13 +223,13 @@ public class CreatePopulationTimeBasedDemand {
 				if (!availableParkingLots.contains(eickelohParkplatzDestination)) {
 
 					for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiPark.keySet()) {
-						createSafariVisitors(scenario, rnd, linkId, (int) (linkId2numberOfVisitorsSerengetiPark.get(linkId) * hourlyDemand.get(i) ), this.serengetiParkDestination, "", i);
+						createSafariVisitors(scenario, rnd, linkId, (int) (linkId2numberOfVisitorsSerengetiPark.get(linkId) * timeBasedDemand.get(i) ), this.serengetiParkDestination, "", i);
 					}
 
 				} else {
 
 					for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiPark.keySet()) {
-						createSafariVisitors(scenario, rnd, linkId, (int) (linkId2numberOfVisitorsSerengetiPark.get(linkId) * hourlyDemand.get(i) / availableParkingLots.size()), this.serengetiParkDestination, this.eickelohParkplatzDestination, i);
+						createSafariVisitors(scenario, rnd, linkId, (int) (linkId2numberOfVisitorsSerengetiPark.get(linkId) * timeBasedDemand.get(i) / availableParkingLots.size()), this.serengetiParkDestination, this.eickelohParkplatzDestination, i);
 					}
 
 				}
@@ -301,7 +301,7 @@ public class CreatePopulationTimeBasedDemand {
 				Activity startActivity = popFactory.createActivityFromCoord("home", scenario.getNetwork().getLinks().get(linkId).getFromNode().getCoord());
 
 				// gleichmaessige abfahrten: halbstundenstuetzpunkte
-				double gruppenmitte = checkInOpeningTime + (i*0.5*3600) + 0.25*3600;
+				double gruppenmitte = checkInOpeningTime + (time_index*0.5*3600) + 0.25*3600;
 				double startTime = calculateRandomlyDistributedValue(gruppenmitte, 0.25*3600) - avg_freespeedTravelTime;
 
 				// prognostizierte abfahrten
@@ -378,7 +378,7 @@ public class CreatePopulationTimeBasedDemand {
 				Activity startActivity = popFactory.createActivityFromCoord("home", scenario.getNetwork().getLinks().get(linkId).getFromNode().getCoord());
 
 				// gleichmaessige abfahrten: halbstundenstuetzpunkte
-				double gruppenmitte = checkInOpeningTime + (i*0.5*3600) + 0.25*3600;
+				double gruppenmitte = checkInOpeningTime + (time_index*0.5*3600) + 0.25*3600;
 				double startTime = calculateRandomlyDistributedValue(gruppenmitte, 0.25*3600) - avg_freespeedTravelTime;
 
 				// prognose
