@@ -61,8 +61,8 @@ public final class RunAllScenariosV2 {
 
 	private static final Logger log = Logger.getLogger(RunAllScenariosV2.class );
 
-	private final static int totalVisitors = 1000;
-	private final static double percentageSafariOwnCar = 0.5;
+	private final static int totalVisitors = 17000;
+	private final static double percentageSafariOwnCar = 0.8;
 	private final static double percentageVisitorsOwnCar = 0.9;
 	private final static double checkInOpeningTime = 9.5*3600.;
 	private final static double checkInClosingTime = 16.5*3600.; // check-in closing at 16:00 at the earliest  & 2 h before park closing time at the latest
@@ -100,36 +100,28 @@ public final class RunAllScenariosV2 {
 		ArrayList<String> twoLots = new ArrayList<>(Arrays.asList("serengetiParkplatz", "wasserlandParkplatz"));
 		ArrayList<String> eickeloh = new ArrayList<>(Arrays.asList("eickelohParkplatz"));
 
-		RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1,"v1.0", "v1.0");
-		/*RunAllScenariosV2 eickelohOpen = new RunAllScenariosV2(eickeloh, 1,"EickelohOpen", "eickelohOpen");
-
+		/*RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1,"v1.0", "v1.0");
+		RunAllScenariosV2 eickelohOpen = new RunAllScenariosV2(eickeloh, 1,"EickelohOpen", "eickelohOpen");
 		RunAllScenariosV2 fourTimeSlots = new RunAllScenariosV2(twoLots, 4,"v1.0", "4TimeSlots");
 		RunAllScenariosV2 eickelohOpenAndFourTimeSlots = new RunAllScenariosV2(eickeloh, 4,"EickelohOpen", "eickelohOpenAnd4TimeSlots");
-
 		RunAllScenariosV2 fiveTimeSlots = new RunAllScenariosV2(twoLots, 5,"v1.0", "5TimeSlots");
 		RunAllScenariosV2 eickelohOpenAndFiveTimeSlots = new RunAllScenariosV2(eickeloh, 5,"EickelohOpen", "eickelohOpenAnd5TimeSlots");
-
 		RunAllScenariosV2 sixTimeSlots = new RunAllScenariosV2(twoLots, 6,"v1.0", "6TimeSlots");
 		RunAllScenariosV2 eickelohOpenAndSixTimeSlots = new RunAllScenariosV2(eickeloh, 6,"EickelohOpen", "eickelohOpenAnd6TimeSlots");
-
-		RunAllScenariosV2 sevenTimeSlots = new RunAllScenariosV2(twoLots, 7,"v1.0", "7TimeSlots");
-		RunAllScenariosV2 eickelohOpenAndSevenTimeSlots = new RunAllScenariosV2(eickeloh, 7,"EickelohOpen", "eickelohOpenAnd7TimeSlots");*/
+		RunAllScenariosV2 sevenTimeSlots = new RunAllScenariosV2(twoLots, 7,"v1.0", "7TimeSlots");*/
+		RunAllScenariosV2 eickelohOpenAndSevenTimeSlots = new RunAllScenariosV2(eickeloh, 7,"EickelohOpen", "eickelohOpenAnd7TimeSlots");
 
 		List<RunAllScenariosV2> scenarios = new ArrayList<>();
-		scenarios.add(baseScenario);
-		/*scenarios.add(eickelohOpen);
-
+		/*scenarios.add(baseScenario);
+		scenarios.add(eickelohOpen);
 		scenarios.add(fourTimeSlots);
 		scenarios.add(eickelohOpenAndFourTimeSlots);
-
 		scenarios.add(fiveTimeSlots);
 		scenarios.add(eickelohOpenAndFiveTimeSlots);
-
 		scenarios.add(sixTimeSlots);
 		scenarios.add(eickelohOpenAndSixTimeSlots);
-
-		scenarios.add(sevenTimeSlots);
-		scenarios.add(eickelohOpenAndSevenTimeSlots);*/
+		scenarios.add(sevenTimeSlots);*/
+		scenarios.add(eickelohOpenAndSevenTimeSlots);
 
 
 		for (RunAllScenariosV2 s: scenarios) {
@@ -151,30 +143,30 @@ public final class RunAllScenariosV2 {
 		this.parkingLots = parkingLots;
 		this.numberOfTimeSlots = numberOfTimeSlots;
 		this.networkFileName = ("serengeti-park-network-" + networkIdentifier+ ".xml.gz");
-		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run" + totalVisitors + "visitors" + "-TimeBasedDemand");
+		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run" + totalVisitors + "visitors" + "-TimeBasedDemand-80-20");
 	}
 
 
 	public static Controler prepareControler( Scenario scenario ) {
-		
+
 		Gbl.assertNotNull(scenario);
-		
+
 		final Controler controler = new Controler( scenario );
-		
+
 //		controler.addOverridingModule( new OTFVisLiveModule() ) ;
-		
+
 		return controler;
 	}
 
 
 	public static Scenario prepareScenario( Config config, ArrayList<String> parkingLots, int numberOfTimeSlots ) throws IOException {
 		Gbl.assertNotNull( config );
-		
+
 		final Scenario scenario = ScenarioUtils.createScenario( config );
-		ScenarioUtils.loadScenario(scenario);		
-		
+		ScenarioUtils.loadScenario(scenario);
+
 		Set<Id<Link>> forCarsRestrictedLinks = new HashSet<>(Arrays.asList(
-				
+
 				// ultimate check-in path (actually bus lane) should be unidirectional
 				Id.createLinkId("3622817520000r"), Id.createLinkId("3622817410000f"),
 
@@ -187,17 +179,17 @@ public final class RunAllScenariosV2 {
 
 				// ms: shortcut links on safari
 				Id.createLinkId("394368960004r")
-				
-				));
 
-		
+		));
+
+
 		Set<Id<Link>> kassenLinks = new HashSet<>(Arrays.asList(
 				// north
 				Id.createLinkId("3624560720003f"),
 				Id.createLinkId("3624560680002f"),
 				Id.createLinkId("3624560690002f"),
 				Id.createLinkId("3624560660002f"),
-				
+
 				// south
 				Id.createLinkId("5297562640002f"),
 				Id.createLinkId("2184588460002f"),
@@ -326,30 +318,30 @@ public final class RunAllScenariosV2 {
 
 		CreatePopulationTimeBasedDemand createPopulation = new CreatePopulationTimeBasedDemand (serengetiParkVehicles, serengetiCarparkVehicles, wasserlandCarparkVehicles, eickelohCarparkVehicles, parkingLots, numberOfTimeSlots, checkInOpeningTime, checkInClosingTime);
 		createPopulation.run(scenario);
-		
+
 		return scenario;
 	}
 
 
 	public static Config prepareConfig( String [] args, ArrayList<String> parkingLots, int numberOfTimeSlots, String networkFileName, String outputDirectory, ConfigGroup... customModules){
-		
+
 		OutputDirectoryLogging.catchLogEntries();
-		
+
 		String[] typedArgs = Arrays.copyOfRange( args, 1, args.length );
-		
+
 		final Config config = ConfigUtils.loadConfig( args[ 0 ], customModules );
-		
+
 //		config.controler().setRoutingAlgorithmType( FastAStarLandmarks );
 
-				
+
 		config.plansCalcRoute().setRoutingRandomness( 0. );
-						
+
 		config.plansCalcRoute().setAccessEgressType(PlansCalcRouteConfigGroup.AccessEgressType.accessEgressModeToLink);
 
 
 		config.qsim().setUsingTravelTimeCheckInTeleportation( true );
 		config.qsim().setTrafficDynamicsCorrectionApproach(TrafficDynamicsCorrectionApproach.INCREASE_NUMBER_OF_LANES);
-		
+
 		ConfigUtils.applyCommandline( config, typedArgs ) ;
 
 		config.planCalcScore().getActivityParams("park").setOpeningTime( checkInOpeningTime );
@@ -420,4 +412,3 @@ public final class RunAllScenariosV2 {
 	}
 
 }
-
