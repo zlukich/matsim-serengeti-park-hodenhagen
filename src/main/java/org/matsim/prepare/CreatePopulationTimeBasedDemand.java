@@ -371,7 +371,7 @@ public class CreatePopulationTimeBasedDemand {
 		if (this.numberOfTimeSlots==1) { //Base Case , EickelohOpen
 
 			for (int i = 0; i < odSum; i++) {
-				Person pers = popFactory.createPerson(Id.create("visitor_" + personCounter + "_" + linkId.toString() + "-" + finalType + parkingType, Person.class));
+				Person pers = popFactory.createPerson(Id.create("visitor_" + personCounter + "_" + linkId.toString() + "-" + finalType + "_" + parkingType, Person.class));
 
 				Plan plan = popFactory.createPlan();
 
@@ -420,7 +420,7 @@ public class CreatePopulationTimeBasedDemand {
 		} else { // TimeSlots, EickelohOpen&TimeSlots
 
 			for (int i = 0; i < odSum; i++) {
-				Person pers = popFactory.createPerson(Id.create("visitor_" + personCounter + "_" + linkId.toString() + "_S" + (time_index+1) + "-" + finalType + parkingType, Person.class));
+				Person pers = popFactory.createPerson(Id.create("visitor_" + personCounter + "_" + linkId.toString() + "_S" + (time_index+1) + "-" + finalType + "_" + parkingType, Person.class));
 
 				Plan plan = popFactory.createPlan();
 

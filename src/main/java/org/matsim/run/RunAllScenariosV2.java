@@ -62,7 +62,7 @@ public final class RunAllScenariosV2 {
 	private static final Logger log = Logger.getLogger(RunAllScenariosV2.class );
 
 	private final static int totalVisitors = 17000;
-	private final static double percentageSafariOwnCar = 0.8;
+	private final static double percentageSafariOwnCar = 0.5;
 	private final static double percentageVisitorsOwnCar = 0.9;
 	private final static double checkInOpeningTime = 9.5*3600.;
 	private final static double checkInClosingTime = 16.5*3600.; // check-in closing at 16:00 at the earliest  & 2 h before park closing time at the latest
@@ -100,7 +100,7 @@ public final class RunAllScenariosV2 {
 		ArrayList<String> twoLots = new ArrayList<>(Arrays.asList("serengetiParkplatz", "wasserlandParkplatz"));
 		ArrayList<String> eickeloh = new ArrayList<>(Arrays.asList("eickelohParkplatz"));
 
-		/*RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1,"v1.0", "v1.0");
+		RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1,"v1.0", "v1.0");
 		RunAllScenariosV2 eickelohOpen = new RunAllScenariosV2(eickeloh, 1,"EickelohOpen", "eickelohOpen");
 		RunAllScenariosV2 fourTimeSlots = new RunAllScenariosV2(twoLots, 4,"v1.0", "4TimeSlots");
 		RunAllScenariosV2 eickelohOpenAndFourTimeSlots = new RunAllScenariosV2(eickeloh, 4,"EickelohOpen", "eickelohOpenAnd4TimeSlots");
@@ -108,11 +108,11 @@ public final class RunAllScenariosV2 {
 		RunAllScenariosV2 eickelohOpenAndFiveTimeSlots = new RunAllScenariosV2(eickeloh, 5,"EickelohOpen", "eickelohOpenAnd5TimeSlots");
 		RunAllScenariosV2 sixTimeSlots = new RunAllScenariosV2(twoLots, 6,"v1.0", "6TimeSlots");
 		RunAllScenariosV2 eickelohOpenAndSixTimeSlots = new RunAllScenariosV2(eickeloh, 6,"EickelohOpen", "eickelohOpenAnd6TimeSlots");
-		RunAllScenariosV2 sevenTimeSlots = new RunAllScenariosV2(twoLots, 7,"v1.0", "7TimeSlots");*/
+		RunAllScenariosV2 sevenTimeSlots = new RunAllScenariosV2(twoLots, 7,"v1.0", "7TimeSlots");
 		RunAllScenariosV2 eickelohOpenAndSevenTimeSlots = new RunAllScenariosV2(eickeloh, 7,"EickelohOpen", "eickelohOpenAnd7TimeSlots");
 
 		List<RunAllScenariosV2> scenarios = new ArrayList<>();
-		/*scenarios.add(baseScenario);
+		scenarios.add(baseScenario);
 		scenarios.add(eickelohOpen);
 		scenarios.add(fourTimeSlots);
 		scenarios.add(eickelohOpenAndFourTimeSlots);
@@ -120,7 +120,7 @@ public final class RunAllScenariosV2 {
 		scenarios.add(eickelohOpenAndFiveTimeSlots);
 		scenarios.add(sixTimeSlots);
 		scenarios.add(eickelohOpenAndSixTimeSlots);
-		scenarios.add(sevenTimeSlots);*/
+		scenarios.add(sevenTimeSlots);
 		scenarios.add(eickelohOpenAndSevenTimeSlots);
 
 
@@ -143,7 +143,7 @@ public final class RunAllScenariosV2 {
 		this.parkingLots = parkingLots;
 		this.numberOfTimeSlots = numberOfTimeSlots;
 		this.networkFileName = ("serengeti-park-network-" + networkIdentifier+ ".xml.gz");
-		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run" + totalVisitors + "visitors" + "-TimeBasedDemand-80-20");
+		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run" + totalVisitors + "visitors" + "-TimeBasedDemand-50-50");
 	}
 
 
@@ -183,7 +183,7 @@ public final class RunAllScenariosV2 {
 		));
 
 
-		Set<Id<Link>> kassenLinks = new HashSet<>(Arrays.asList(
+		Set<Id<Link>> kassenLinksToBeRestricted = new HashSet<>(Arrays.asList(
 				// north
 				Id.createLinkId("3624560720003f"),
 				Id.createLinkId("3624560680002f"),
@@ -194,6 +194,21 @@ public final class RunAllScenariosV2 {
 				Id.createLinkId("5297562640002f"),
 				Id.createLinkId("2184588460002f"),
 				Id.createLinkId("2184588440002f")));
+
+		Set<Id<Link>> usedKassenLinksNorth = new HashSet<>(Arrays.asList(
+				// north
+				Id.createLinkId("3624560720000f"),
+				Id.createLinkId("3624560720001f"),
+				Id.createLinkId("3624560720002f"),
+				Id.createLinkId("3624560720003f")));
+
+		Set<Id<Link>> usedKassenLinksSouth = new HashSet<>(Arrays.asList(
+				// south
+				Id.createLinkId("2184588440000f"),
+				Id.createLinkId("2184588440001f"),
+				Id.createLinkId("2184588440002f")));
+
+
 
 		for (Link link : scenario.getNetwork().getLinks().values()) {
 
@@ -214,10 +229,19 @@ public final class RunAllScenariosV2 {
 			if ( !parkingLots.contains("eickelohParkplatz") ) {
 
 				// use single check-in link instead of several parallel check-in links...
-				if (kassenLinks.contains(link.getId())) {
+				if (kassenLinksToBeRestricted.contains(link.getId())) {
 					link.setFreespeed(0.001);
 					link.setCapacity(0.);
 				}
+
+				if (usedKassenLinksNorth.contains(link.getId())) {
+					link.setNumberOfLanes(numberOfNorthCheckInBooths);
+				}
+
+				if (usedKassenLinksSouth.contains(link.getId())) {
+					link.setNumberOfLanes(6.);
+				}
+
 
 				// keep just one link for the north check-in area
 				if (link.getId().toString().equals("3624560720003f")) {
@@ -225,10 +249,9 @@ public final class RunAllScenariosV2 {
 					link.setFreespeed(2.7777);
 
 					// account for the other check-in links
-					//link.setLength(30. * (numberOfNorthCheckInBooths - 1));
 					link.setNumberOfLanes(numberOfNorthCheckInBooths);
-
 				}
+
 
 				// keep just one link for the south check-in area
 				if (link.getId().toString().equals("2184588440002f")) {
@@ -237,7 +260,7 @@ public final class RunAllScenariosV2 {
 
 					// account for the other check-in links
 					//link.setLength(40. * (numberOfSouthCheckInBooths - 1));
-					link.setNumberOfLanes(numberOfSouthCheckInBooths);
+					link.setNumberOfLanes(6.);
 				}
 
 				// install ultimate check-in booth next to main access link
