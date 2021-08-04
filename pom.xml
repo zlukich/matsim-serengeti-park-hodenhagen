@@ -78,12 +78,12 @@
 			<version>0.9.0</version>
 		</dependency>
 
-		<dependency>
+		<!--<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>29.0-jre</version>
 			<type>bundle</type>
-		</dependency>
+		</dependency>-->
 
 		<dependency>
 			<!-- Include the JUnit testing library.  Not transitive. -->
