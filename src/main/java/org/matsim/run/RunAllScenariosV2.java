@@ -143,7 +143,7 @@ public final class RunAllScenariosV2 {
 		this.parkingLots = parkingLots;
 		this.numberOfTimeSlots = numberOfTimeSlots;
 		this.networkFileName = ("serengeti-park-network-" + networkIdentifier+ ".xml.gz");
-		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run" + totalVisitors + "visitors" + "-TimeBasedDemand-50-50");
+		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run" + totalVisitors + "visitors" + "-TimeBasedDemand-50-50-higherLinkCap");
 	}
 
 
@@ -427,8 +427,8 @@ public final class RunAllScenariosV2 {
 		// set outputDirectory
 		config.controler().setOutputDirectory(outputDirectory);
 
-
-
+		config.controler().setWriteEventsInterval(20);
+		config.controler().setWritePlansInterval(20);
 
 
 		return config ;
