@@ -218,9 +218,9 @@ public final class RunAllScenariosV2 {
 			}
 
 			// first link on access road
-			/*if (link.getId().equals(Id.createLinkId("2344589960000f"))) {
+			if (link.getId().equals(Id.createLinkId("2344589960000f"))) {
 				link.setCapacity(1440.);
-			}*/
+			}
 
 
 
