@@ -100,25 +100,25 @@ public final class RunAllScenariosV2 {
 		ArrayList<String> twoLots = new ArrayList<>(Arrays.asList("serengetiParkplatz", "wasserlandParkplatz"));
 		ArrayList<String> eickeloh = new ArrayList<>(Arrays.asList("eickelohParkplatz"));
 
-		RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1,"v1.0", "v1.0");
+		/*RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1,"v1.0", "v1.0");
 		RunAllScenariosV2 eickelohOpen = new RunAllScenariosV2(eickeloh, 1,"EickelohOpen", "eickelohOpen");
 		RunAllScenariosV2 fourTimeSlots = new RunAllScenariosV2(twoLots, 4,"v1.0", "4TimeSlots");
 		RunAllScenariosV2 eickelohOpenAndFourTimeSlots = new RunAllScenariosV2(eickeloh, 4,"EickelohOpen", "eickelohOpenAnd4TimeSlots");
 		RunAllScenariosV2 fiveTimeSlots = new RunAllScenariosV2(twoLots, 5,"v1.0", "5TimeSlots");
 		RunAllScenariosV2 eickelohOpenAndFiveTimeSlots = new RunAllScenariosV2(eickeloh, 5,"EickelohOpen", "eickelohOpenAnd5TimeSlots");
-		RunAllScenariosV2 sixTimeSlots = new RunAllScenariosV2(twoLots, 6,"v1.0", "6TimeSlots");
+		RunAllScenariosV2 sixTimeSlots = new RunAllScenariosV2(twoLots, 6,"v1.0", "6TimeSlots");*/
 		RunAllScenariosV2 eickelohOpenAndSixTimeSlots = new RunAllScenariosV2(eickeloh, 6,"EickelohOpen", "eickelohOpenAnd6TimeSlots");
 		RunAllScenariosV2 sevenTimeSlots = new RunAllScenariosV2(twoLots, 7,"v1.0", "7TimeSlots");
 		RunAllScenariosV2 eickelohOpenAndSevenTimeSlots = new RunAllScenariosV2(eickeloh, 7,"EickelohOpen", "eickelohOpenAnd7TimeSlots");
 
 		List<RunAllScenariosV2> scenarios = new ArrayList<>();
-		scenarios.add(baseScenario);
+		/*scenarios.add(baseScenario);
 		scenarios.add(eickelohOpen);
 		scenarios.add(fourTimeSlots);
 		scenarios.add(eickelohOpenAndFourTimeSlots);
 		scenarios.add(fiveTimeSlots);
 		scenarios.add(eickelohOpenAndFiveTimeSlots);
-		scenarios.add(sixTimeSlots);
+		scenarios.add(sixTimeSlots);*/
 		scenarios.add(eickelohOpenAndSixTimeSlots);
 		scenarios.add(sevenTimeSlots);
 		scenarios.add(eickelohOpenAndSevenTimeSlots);
@@ -236,10 +236,18 @@ public final class RunAllScenariosV2 {
 
 				if (usedKassenLinksNorth.contains(link.getId())) {
 					link.setNumberOfLanes(numberOfNorthCheckInBooths);
+					link.setCapacity(numberOfNorthCheckInBooths * 720);
 				}
 
 				if (usedKassenLinksSouth.contains(link.getId())) {
 					link.setNumberOfLanes(6.);
+					link.setCapacity(6. * 720);
+				}
+
+				// link directly behind southern check-in
+				if (link.getId().toString().equals("2184588440003f")) {
+					link.setNumberOfLanes(4);
+					link.setCapacity(4 * 720.);
 				}
 
 
@@ -271,9 +279,7 @@ public final class RunAllScenariosV2 {
 					//link.setLength(30. * (numberOfUltimateCheckInBooths - 1));
 					link.setNumberOfLanes(numberOfUltimateCheckInBooths);
 				}
-
 			}
-
 		}
 
 		// ms: ebenfalls dinge die im massnahmenfall eickeloh geoeffnet nicht relevant sind
@@ -427,9 +433,10 @@ public final class RunAllScenariosV2 {
 		// set outputDirectory
 		config.controler().setOutputDirectory(outputDirectory);
 
-		config.controler().setWriteEventsInterval(20);
-		config.controler().setWritePlansInterval(20);
+		config.controler().setWriteEventsInterval(50);
+		config.controler().setWritePlansInterval(50);
 
+		// test
 
 		return config ;
 	}
