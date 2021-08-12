@@ -104,10 +104,10 @@ public final class RunAllScenariosV2 {
 		RunAllScenariosV2 eickelohOpen = new RunAllScenariosV2(eickeloh, 1,"EickelohOpen", "eickelohOpen");
 		RunAllScenariosV2 fourTimeSlots = new RunAllScenariosV2(twoLots, 4,"v1.0", "4TimeSlots");
 		RunAllScenariosV2 eickelohOpenAndFourTimeSlots = new RunAllScenariosV2(eickeloh, 4,"EickelohOpen", "eickelohOpenAnd4TimeSlots");
-		*/RunAllScenariosV2 fiveTimeSlots = new RunAllScenariosV2(twoLots, 5,"v1.0", "5TimeSlots");
+		*//*RunAllScenariosV2 fiveTimeSlots = new RunAllScenariosV2(twoLots, 5,"v1.0", "5TimeSlots");
 		RunAllScenariosV2 eickelohOpenAndFiveTimeSlots = new RunAllScenariosV2(eickeloh, 5,"EickelohOpen", "eickelohOpenAnd5TimeSlots");
 		RunAllScenariosV2 sixTimeSlots = new RunAllScenariosV2(twoLots, 6,"v1.0", "6TimeSlots");
-		RunAllScenariosV2 eickelohOpenAndSixTimeSlots = new RunAllScenariosV2(eickeloh, 6,"EickelohOpen", "eickelohOpenAnd6TimeSlots");
+		*/RunAllScenariosV2 eickelohOpenAndSixTimeSlots = new RunAllScenariosV2(eickeloh, 6,"EickelohOpen", "eickelohOpenAnd6TimeSlots");
 		RunAllScenariosV2 sevenTimeSlots = new RunAllScenariosV2(twoLots, 7,"v1.0", "7TimeSlots");
 		RunAllScenariosV2 eickelohOpenAndSevenTimeSlots = new RunAllScenariosV2(eickeloh, 7,"EickelohOpen", "eickelohOpenAnd7TimeSlots");
 
@@ -116,9 +116,9 @@ public final class RunAllScenariosV2 {
 		scenarios.add(eickelohOpen);
 		scenarios.add(fourTimeSlots);
 		scenarios.add(eickelohOpenAndFourTimeSlots);*/
-		scenarios.add(fiveTimeSlots);
+		/*scenarios.add(fiveTimeSlots);
 		scenarios.add(eickelohOpenAndFiveTimeSlots);
-		scenarios.add(sixTimeSlots);
+		scenarios.add(sixTimeSlots);*/
 		scenarios.add(eickelohOpenAndSixTimeSlots);
 		scenarios.add(sevenTimeSlots);
 		scenarios.add(eickelohOpenAndSevenTimeSlots);
