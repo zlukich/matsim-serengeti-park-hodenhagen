@@ -177,13 +177,27 @@ public class NetworkAddEickelohOpen {
 		NetworkAddEickelohOpen l = new NetworkAddEickelohOpen();
 
 		//access and exit
-		createBidirectionalSimpleLink(network, factory,modes,lastNodeOfNorthernAccessRoadToEickeloh,914822755, 59.347);
+		/*createBidirectionalSimpleLink(network, factory,modes,lastNodeOfNorthernAccessRoadToEickeloh,914822755, 59.347);
 		createBidirectionalSimpleLink(network, factory,modes, 914822755, 914822756, 12.866);
 		createBidirectionalSimpleLink(network, factory,modes,914822756, 914822757, 59.599);
-		createBidirectionalSimpleLink(network, factory,modes,914822757, 914822758, 29.808);
+		createBidirectionalSimpleLink(network, factory,modes,914822757, 914822758, 29.808);*/
+
+		/*createBidirectionalLink(network, factory,modes,lastNodeOfNorthernAccessRoadToEickeloh,914822755, 59.347, 3.);
+		createBidirectionalLink(network, factory,modes, 914822755, 914822756, 12.866, 3.);
+		createBidirectionalLink(network, factory,modes,914822756, 914822757, 59.599, 3.);
+		createBidirectionalLink(network, factory,modes,914822757, 914822758, 29.808, 3.);*/
+
+		
+
+		createBidirectionalLink2(network, factory, modes, lastNodeOfNorthernAccessRoadToEickeloh,914822755, 59.347, 2., 2.);
+		createBidirectionalLink2(network, factory,modes, 914822755, 914822756, 12.866, 2., 2.);
+		createBidirectionalLink2(network, factory,modes,914822756, 914822757, 59.599, 2., 2.);
+		createBidirectionalLink2(network, factory,modes,914822757, 914822758, 29.808, 2., 2.);
+		
+
 
 		//west side
-		createBidirectionalSimpleLink(network, factory,modes,914822758, 914822759, 15.564);
+	/*	createBidirectionalSimpleLink(network, factory,modes,914822758, 914822759, 15.564);
 		createBidirectionalSimpleLink(network, factory,modes,914822759, 914822760, 15.174);
 		createBidirectionalSimpleLink(network, factory,modes,914822760, 914822761, 15.798);
 		createBidirectionalSimpleLink(network, factory,modes, 914822761, 914822762, 15.395);
@@ -219,15 +233,61 @@ public class NetworkAddEickelohOpen {
 		createBidirectionalSimpleLink(network, factory,modes, 914822790, 914822791, 15.654);
 		createBidirectionalSimpleLink(network, factory,modes, 914822791, 914822792, 15.452);
 		createBidirectionalSimpleLink(network, factory,modes, 914822792, 914822793, 15.452);
-		createBidirectionalSimpleLink(network, factory,modes, 914822793, 914822794, 9.636094);
+		createBidirectionalSimpleLink(network, factory,modes, 914822793, 914822794, 9.636094);*/
+
+
+
+		createBidirectionalLink(network, factory,modes,914822758, 914822759, 15.564, 2);
+		createBidirectionalLink(network, factory,modes,914822759, 914822760, 15.174, 2.);
+		createBidirectionalLink(network, factory,modes,914822760, 914822761, 15.798, 2.);
+		createBidirectionalLink(network, factory,modes, 914822761, 914822762, 15.395, 2.);
+		createBidirectionalLink(network, factory,modes,914822762, 914822763, 15.508, 2.);
+		createBidirectionalLink(network, factory,modes, 914822763, 914822764, 15.026, 2.);
+		createBidirectionalLink(network, factory,modes, 914822764, 914822765, 15.641, 2.);
+		createBidirectionalLink(network, factory,modes, 914822765, 914822766, 15.564, 2.);
+		createBidirectionalLink(network, factory,modes,914822766, 914822767, 15.118, 2.);
+		createBidirectionalLink(network, factory,modes, 914822767, 914822768, 15.452, 2.);
+		createBidirectionalLink(network, factory,modes, 914822768, 914822769, 15.452, 2.);
+		createBidirectionalLink(network, factory,modes, 914822769, 914822770, 15.452, 2.);
+		createBidirectionalLink(network, factory,modes, 914822770, 914822771, 15.452, 2.);
+		createBidirectionalLink(network, factory,modes, 914822771, 914822772, 15.452, 2.);
+		createBidirectionalLink(network, factory,modes, 914822772, 914822773, 15.452, 2.);
+
+		createBidirectionalLink(network, factory,modes, 914822773, 914822774, 31.033, 2.);
+		createBidirectionalLink(network, factory,modes, 914822774, 914822775, 15.380, 2.);
+		createBidirectionalLink(network, factory,modes, 914822775, 914822776, 15.692, 2.);
+		createBidirectionalLink(network, factory,modes, 914822776, 914822777, 15.009, 2.);
+		createBidirectionalLink(network, factory,modes, 914822777, 914822778, 15.598, 2.);
+		createBidirectionalLink(network, factory,modes, 914822778, 914822779, 15.508, 2.);
+		createBidirectionalLink(network, factory,modes, 914822779, 914822780, 15.493, 2.);
+		createBidirectionalLink(network, factory,modes, 914822780, 914822781, 15.082, 2.);
+		createBidirectionalLink(network, factory,modes, 914822781, 914822782, 15.636, 2.);
+		createBidirectionalLink(network, factory,modes, 914822782, 914822783, 15.082, 2.);
+		createBidirectionalLink(network, factory,modes, 914822783, 914822784, 16.136, 2.);
+		createBidirectionalLink(network, factory,modes, 914822784, 914822785, 15.514, 2.);
+		createBidirectionalLink(network, factory,modes, 914822785, 914822786, 15.008, 2.);
+		createBidirectionalLink(network, factory,modes, 914822786, 914822787, 15.525, 2.);
+		createBidirectionalLink(network, factory,modes, 914822787, 914822788, 15.084, 2.);
+		createBidirectionalLink(network, factory,modes, 914822788, 914822789, 15.564, 2.);
+		createBidirectionalLink(network, factory,modes, 914822789, 914822790, 15.654, 2.);
+		createBidirectionalLink(network, factory,modes, 914822790, 914822791, 15.654, 2.);
+		createBidirectionalLink(network, factory,modes, 914822791, 914822792, 15.452, 2.);
+		createBidirectionalLink(network, factory,modes, 914822792, 914822793, 15.452, 2.);
+		createBidirectionalLink(network, factory,modes, 914822793, 914822794, 9.636094, 2.);
+		
+		
 
 		//south side
-		createBidirectionalSimpleLink(network, factory,modes, 914822794, 914822795, 8.097033);
+		/*createBidirectionalSimpleLink(network, factory,modes, 914822794, 914822795, 8.097033);
 		createBidirectionalSimpleLink(network, factory,modes, 914822795, 914822796, 60.954);
-		createBidirectionalSimpleLink(network, factory,modes, 914822796, 914822797, 86.863);
+		createBidirectionalSimpleLink(network, factory,modes, 914822796, 914822797, 86.863);*/
+
+		createBidirectionalLink(network, factory,modes, 914822794, 914822795, 8.097033, 1.);
+		createBidirectionalLink(network, factory,modes, 914822795, 914822796, 60.954, 1.);
+		createBidirectionalLink(network, factory,modes, 914822796, 914822797, 86.863, 1.);
 
 		//east side
-		createBidirectionalSimpleLink(network, factory,modes, 914822797, 914822798, 15.654);
+		/*createBidirectionalSimpleLink(network, factory,modes, 914822797, 914822798, 15.654);
 		createBidirectionalSimpleLink(network, factory,modes, 914822798, 914822799, 15.617);
 		createBidirectionalSimpleLink(network, factory,modes, 914822799, 914822800, 15.489);
 		createBidirectionalSimpleLink(network, factory,modes, 914822800, 914822801, 14.953);
@@ -263,10 +323,51 @@ public class NetworkAddEickelohOpen {
 		createBidirectionalSimpleLink(network, factory,modes, 914822829, 914822830, 16.029);
 		createBidirectionalSimpleLink(network, factory,modes, 914822830, 914822831, 14.602);
 		createBidirectionalSimpleLink(network, factory,modes, 914822831, 914822832, 16.065);
-		createBidirectionalSimpleLink(network, factory,modes, 914822832, 914822833, 15.617);
+		createBidirectionalSimpleLink(network, factory,modes, 914822832, 914822833, 15.617);*/
+
+
+		createBidirectionalLink(network, factory,modes, 914822797, 914822798, 15.654, 1.);
+		createBidirectionalLink(network, factory,modes, 914822798, 914822799, 15.617, 1.);
+		createBidirectionalLink(network, factory,modes, 914822799, 914822800, 15.489, 1.);
+		createBidirectionalLink(network, factory,modes, 914822800, 914822801, 14.953, 1.);
+		createBidirectionalLink(network, factory,modes, 914822801, 914822802, 15.635, 1.);
+		createBidirectionalLink(network, factory,modes, 914822802, 914822803, 15.508, 1.);
+		createBidirectionalLink(network, factory,modes, 914822803, 914822804, 15.137, 1.);
+		createBidirectionalLink(network, factory,modes, 914822804, 914822805, 15.581, 1.);
+		createBidirectionalLink(network, factory,modes, 914822805, 914822806, 15.600, 1.);
+		createBidirectionalLink(network, factory,modes, 914822806, 914822807, 14.861, 1.);
+		createBidirectionalLink(network, factory,modes, 914822807, 914822808, 15.617, 1.);
+		createBidirectionalLink(network, factory,modes, 914822808, 914822809, 15.581, 1.);
+		createBidirectionalLink(network, factory,modes, 914822809, 914822810, 14.989, 1.);
+		createBidirectionalLink(network, factory,modes, 914822810, 914822811, 15.581, 1.);
+		createBidirectionalLink(network, factory,modes, 914822811, 914822812, 15.544, 1.);
+		createBidirectionalLink(network, factory,modes, 914822812, 914822813, 14.861, 1.);
+		createBidirectionalLink(network, factory,modes, 914822813, 914822814, 14.861, 1.);
+		createBidirectionalLink(network, factory,modes, 914822814, 914822815, 15.472, 1.);
+
+		createBidirectionalLink(network, factory,modes, 914822815, 914822816, 31.179, 1.);
+		createBidirectionalLink(network, factory,modes, 914822816, 914822817, 14.901, 1.);
+		createBidirectionalLink(network, factory,modes, 914822817, 914822818, 15.728, 1.);
+		createBidirectionalLink(network, factory,modes, 914822818, 914822819, 15.581, 1.);
+		createBidirectionalLink(network, factory,modes, 914822819, 914822820, 15.063, 1.);
+		createBidirectionalLink(network, factory,modes, 914822820, 914822821, 15.472, 1.);
+		createBidirectionalLink(network, factory,modes, 914822821, 914822822, 15.544, 1.);
+		createBidirectionalLink(network, factory,modes, 914822822, 914822823, 15.045, 1.);
+		createBidirectionalLink(network, factory,modes, 914822823, 914822824, 15.452, 1.);
+		createBidirectionalLink(network, factory,modes, 914822824, 914822825, 15.562, 1.);
+		createBidirectionalLink(network, factory,modes, 914822825, 914822826, 14.917, 1.);
+		createBidirectionalLink(network, factory,modes, 914822826, 914822827, 15.489, 1.);
+		createBidirectionalLink(network, factory,modes, 914822827, 914822828, 15.654, 1.);
+		createBidirectionalLink(network, factory,modes, 914822828, 914822829, 14.971, 1.);
+		createBidirectionalLink(network, factory,modes, 914822829, 914822830, 16.029, 1.);
+		createBidirectionalLink(network, factory,modes, 914822830, 914822831, 14.602, 1.);
+		createBidirectionalLink(network, factory,modes, 914822831, 914822832, 16.065, 1.);
+		createBidirectionalLink(network, factory,modes, 914822832, 914822833, 15.617, 1.);
+
 
 		//north side link
-		l.createUniDirectionalSimpleLink(network, factory,modes, 914822833, 914822758, 153.843);
+		/*l.createUniDirectionalSimpleLink(network, factory,modes, 914822833, 914822758, 153.843);*/
+		createUniDirectionalLink(network, factory,modes, 914822833, 914822758, 153.843, 1.);
 
 
 		// extension south side
@@ -349,18 +450,27 @@ public class NetworkAddEickelohOpen {
 		createNode(network, 542451.9028,5844976.2991);
 
 		// create new links:
-		createUniDirectionalDoubleLaneLink(network, factory, modes, lastNodeOfAccessRoad, 914822850, 47.910);
-		createUniDirectionalDoubleLaneLink(network, factory, modes, 914822850, 914822851, 167.212);
-		createUniDirectionalDoubleLaneLink(network, factory, modes, 914822851, 914822852, 135.747);
-		createUniDirectionalDoubleLaneLink(network, factory, modes, 914822852, 914822853, 21.557);
-		createUniDirectionalDoubleLaneLink(network, factory, modes, 914822853, 914822854, 24.171);
-		createUniDirectionalDoubleLaneLink(network, factory, modes, 914822854, 914822855, 109.036);
-		createUniDirectionalDoubleLaneLink(network, factory, modes, 914822855, 914822856, 70.361);
-		createUniDirectionalDoubleLaneLink(network, factory, modes, 914822856, 914822857, 33.952);
-		createUniDirectionalDoubleLaneLink(network, factory, modes, 914822857, lastNodeOfNorthernAccessRoadToEickeloh, 51.992);
+		createUniDirectionalLink(network, factory, modes, lastNodeOfAccessRoad, 914822850, 47.910, 2.);
+		createUniDirectionalLink(network, factory, modes, 914822850, 914822851, 167.212, 2.);
+		createUniDirectionalLink(network, factory, modes, 914822851, 914822852, 135.747, 2.);
+		createUniDirectionalLink(network, factory, modes, 914822852, 914822853, 21.557, 2.);
+		createUniDirectionalLink(network, factory, modes, 914822853, 914822854, 24.171, 2.);
+		createUniDirectionalLink(network, factory, modes, 914822854, 914822855, 109.036, 2.);
+		createUniDirectionalLink(network, factory, modes, 914822855, 914822856, 70.361, 2.);
+		createUniDirectionalLink(network, factory, modes, 914822856, 914822857, 33.952, 2.);
+		createUniDirectionalLink(network, factory, modes, 914822857, lastNodeOfNorthernAccessRoadToEickeloh, 51.992, 2.);
+
+
+		// DO NOT INCREASE IT ANYMORE!!!!!!!!
+
+
 
 		// increase capacity on southern (exit route) links from 1 to 2 lanes:
 		Set<Id<Link>> toIncreaseCapacityLinks = new HashSet<>(Arrays.asList(
+
+
+				Id.createLinkId("7232641190001r"),
+				Id.createLinkId("7232641190002f"),
 
 				Id.createLinkId("246929390061f"),
 				Id.createLinkId("246929390060f"),
@@ -389,9 +499,12 @@ public class NetworkAddEickelohOpen {
 			}
 		}
 
+
+
+
 		// allow access to the safari by turning left
-		createInverseLink(network,factory,"7232641190002f", "7232641190002r");
-		createInverseLink(network,factory,"7232641190001f", "7232641190001r");
+		createSimpleInverseLink(network,factory,"7232641190002f", "7232641190002r");
+		createSimpleInverseLink(network,factory,"7232641190001f", "7232641190001r");
 
 		// restrict links which do not belong to the intended "to-the-safari"-route
 		Set<Id<Link>> restrictedLinks = new HashSet<>(Arrays.asList(
@@ -399,6 +512,7 @@ public class NetworkAddEickelohOpen {
 				//serengetiparkplatz westseite
 				Id.createLinkId("2226309730000r"),
 				Id.createLinkId("394368880003r"),
+
 
 				// ex bus lane (ultimate check-in)
 				Id.createLinkId("3622817520001f"),
@@ -411,7 +525,19 @@ public class NetworkAddEickelohOpen {
 				Id.createLinkId("3624560720000f"),
 				Id.createLinkId("3624560720001f"),
 				Id.createLinkId("3624560720002f"),
-				Id.createLinkId("3624560720003f")
+				Id.createLinkId("3624560720003f"),
+
+				//wasserlandparkplatz suedseite
+				Id.createLinkId("1432053600000f"),
+				Id.createLinkId("261715690000f"),
+				Id.createLinkId("3551886970000r"),
+				Id.createLinkId("394590950000r"),
+				Id.createLinkId("1432053530019r"),
+
+				//serengetiparkplatz nordseite
+				Id.createLinkId("7259809370008r"),
+				Id.createLinkId("7259809390010r")
+
 
 		));
 
@@ -476,22 +602,76 @@ public class NetworkAddEickelohOpen {
 	}
 
 
-	private static void createUniDirectionalDoubleLaneLink(Network network, NetworkFactory factory, Set<String> modes, long idPt1, long idPt2, double distance){
+	private static void createUniDirectionalLink(Network network, NetworkFactory factory, Set<String> modes, long idPt1, long idPt2, double distance, double lanes){
 		Node pt1 = network.getNodes().get(Id.createNodeId(idPt1));
 		Node pt2 = network.getNodes().get(Id.createNodeId(idPt2));
 
 		Link forwardLink = factory.createLink(Id.createLinkId(linksIndex+"f"), pt1, pt2);
 		forwardLink.setLength(distance);
 		forwardLink.setFreespeed(10.0/3.6);
-		forwardLink.setCapacity(1440.);
-		forwardLink.setNumberOfLanes(2.);
+		forwardLink.setCapacity(720 * lanes);
+		forwardLink.setNumberOfLanes(lanes);
 		forwardLink.setAllowedModes(modes);
 		network.addLink(forwardLink);
 
 		linksIndex++;
+
 	}
 
-	private static void createInverseLink(Network network, NetworkFactory factory, String idOriginal, String idInverse){
+	private static void createBidirectionalLink(Network network, NetworkFactory factory, Set<String> modes, long idPt1, long idPt2, double distance, double lanes){
+		Node pt1 = network.getNodes().get(Id.createNodeId(idPt1));
+		Node pt2 = network.getNodes().get(Id.createNodeId(idPt2));
+
+		Link forwardLink = factory.createLink(Id.createLinkId(linksIndex+"f"), pt1, pt2);
+		forwardLink.setLength(distance);
+		forwardLink.setFreespeed(10.0/3.6);
+		forwardLink.setCapacity(720 * lanes);
+		forwardLink.setNumberOfLanes(lanes);
+		forwardLink.setAllowedModes(modes);
+		network.addLink(forwardLink);
+
+
+		Link reverseLink = factory.createLink(Id.createLinkId(linksIndex+"r"), pt2, pt1);
+		reverseLink.setLength(distance);
+		reverseLink.setFreespeed(10.0/3.6);
+		reverseLink.setCapacity(720 * lanes);
+		reverseLink.setNumberOfLanes(lanes);
+		reverseLink.setAllowedModes(modes);
+		network.addLink(reverseLink);
+
+		linksIndex++;
+	}
+
+
+	private static void createBidirectionalLink2(Network network, NetworkFactory factory, Set<String> modes, long idPt1, long idPt2, double distance, double lanesf, double lanesr){
+		Node pt1 = network.getNodes().get(Id.createNodeId(idPt1));
+		Node pt2 = network.getNodes().get(Id.createNodeId(idPt2));
+
+		Link forwardLink = factory.createLink(Id.createLinkId(linksIndex+"f"), pt1, pt2);
+		forwardLink.setLength(distance);
+		forwardLink.setFreespeed(10.0/3.6);
+		forwardLink.setCapacity(720 * lanesf);
+		forwardLink.setNumberOfLanes(lanesf);
+		forwardLink.setAllowedModes(modes);
+		network.addLink(forwardLink);
+
+
+		Link reverseLink = factory.createLink(Id.createLinkId(linksIndex+"r"), pt2, pt1);
+		reverseLink.setLength(distance);
+		reverseLink.setFreespeed(10.0/3.6);
+		reverseLink.setCapacity(720 * lanesr);
+		reverseLink.setNumberOfLanes(lanesr);
+		reverseLink.setAllowedModes(modes);
+		network.addLink(reverseLink);
+
+		linksIndex++;
+	}
+
+
+
+
+
+	private static void createSimpleInverseLink(Network network, NetworkFactory factory, String idOriginal, String idInverse){
 
 		Link original = network.getLinks().get(Id.createLinkId(idOriginal));
 
@@ -500,6 +680,20 @@ public class NetworkAddEickelohOpen {
 		inverseLink.setCapacity(original.getCapacity());
 		inverseLink.setAllowedModes(original.getAllowedModes());
 		inverseLink.setNumberOfLanes(original.getNumberOfLanes());
+		inverseLink.setFreespeed(original.getFreespeed());
+
+		network.addLink(inverseLink);
+	}
+
+	private static void createInverseLink(Network network, NetworkFactory factory, String idOriginal, String idInverse, double lanes){
+
+		Link original = network.getLinks().get(Id.createLinkId(idOriginal));
+
+		Link inverseLink = factory.createLink(Id.createLinkId(idInverse), original.getToNode(), original.getFromNode());
+		inverseLink.setLength(original.getLength());
+		inverseLink.setCapacity(720 * lanes);
+		inverseLink.setAllowedModes(original.getAllowedModes());
+		inverseLink.setNumberOfLanes(lanes);
 		inverseLink.setFreespeed(original.getFreespeed());
 
 		network.addLink(inverseLink);
