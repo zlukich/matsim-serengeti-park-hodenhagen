@@ -137,7 +137,7 @@ public class CreatePopulationModBasicPlans {
 
 		//CreatePopulationModBasicPlans popGenerator = new CreatePopulationModBasicPlans(twoLots, 4, 9.5*3600., 16.5*3600.);
 		//CreatePopulationModBasicPlans popGenerator = new CreatePopulationModBasicPlans(eickeloh, 1, 9.5*3600., 16.5*3600.);
-		CreatePopulationModBasicPlans popGenerator = new CreatePopulationModBasicPlans(eickeloh, 4, 9.5*3600., 16.5*3600.);
+		CreatePopulationModBasicPlans popGenerator = new CreatePopulationModBasicPlans(eickeloh, 2, 9.5*3600., 16.5*3600.);
 
 
 
@@ -239,7 +239,7 @@ public class CreatePopulationModBasicPlans {
 
 			// zeitslots: pack in map mit key=slot alle leute jeweils rein die gern drin waeren...
 
-			Map<Integer, Set<Id<Person>>> slotToPerson = new HashMap<>();
+			Map<Integer, Set<Id<Person>>> slotToPerson = new LinkedHashMap<>();
 
 			for (Map.Entry<Id<Person>, OptionalTime> e : personToDepartureTime.entrySet()) {
 				OptionalTime time = e.getValue();
@@ -253,6 +253,8 @@ public class CreatePopulationModBasicPlans {
 					slotToPerson.put(slot, persons);
 				}
 			}
+
+			//System.out.println(slotToPerson.toString());
 
 			// zeitslots: geh durch und sortiere ueberstand nach hinten weg
 
