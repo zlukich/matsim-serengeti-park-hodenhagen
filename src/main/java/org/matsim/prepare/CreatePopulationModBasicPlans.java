@@ -256,29 +256,82 @@ public class CreatePopulationModBasicPlans {
 
 			// zeitslots: geh durch und sortiere ueberstand nach hinten weg
 
-			int totalNumberAgents = slotToPerson.size();
+			int totalNumberAgents = 0;
+			for (Map.Entry<Integer, Set<Id<Person>>> e: slotToPerson.entrySet()) {
+				totalNumberAgents += e.getValue().size();
+			}
+
+
+			// erstelle neue Map wo alles reinkommt wie es am ende sein soll:
+
+			Map<Integer, Set<Id<Person>>> slotToPerson_soll = slotToPerson;
 
 			for (Map.Entry<Integer, Set<Id<Person>>> e : slotToPerson.entrySet()) {
 
+				int originalSlot = e.getKey();
+
 				//Set<Id<Person>> supernumPersons = new HashSet<>();
-				int intendedSlotCapacity = (int) (sharePerTS(e.getKey()) * totalNumberAgents);
-				Set<Id<Person>> persons = e.getValue();
+				int intendedSlotCapacity = (int) Math.round( sharePerTS(e.getKey()) * totalNumberAgents );
+
+				Set<Id<Person>> setOfpersons = e.getValue();
+
+				ArrayList<Id<Person>> persons = new ArrayList<>();
+				persons.addAll(setOfpersons);
+
+				int currentNumberOfPersonsInThisSlot = persons.size();
 
 
-				for (Id<Person> p : persons) {
-					if (persons.size()>intendedSlotCapacity) {
 
-						// gleich verteilen auf den nächsten freien slot:
-						for (Map.Entry<Integer, Set<Id<Person>>> e2 : slotToPerson.entrySet()) {
-							int assignedSlotCapacity = (int) (sharePerTS(e2.getKey()) * totalNumberAgents);
-							while ( e2.getValue().size()<assignedSlotCapacity ) {
-								e2.getValue().add(p);
-								persons.remove(p);
-							}
+				while ( currentNumberOfPersonsInThisSlot>intendedSlotCapacity ) {
+
+					System.out.println("test ");
+
+					String reallocatedPersonIdString = "";
+
+
+
+					// gleich verteilen auf den nächsten freien slot:
+
+					boolean quit = false;
+
+					// 3. Using Iterator with generic
+					Iterator<Map.Entry<Integer, Set<Id<Person>>>> soll_entries = slotToPerson_soll.entrySet().iterator();
+
+					while ( soll_entries.hasNext() && !quit ) {
+
+						Map.Entry<Integer, Set<Id<Person>>> soll_entry = soll_entries.next();
+
+						int assignedSlotCapacity = (int) Math.round( (sharePerTS(soll_entry.getKey()) * totalNumberAgents) );
+
+						if ( soll_entry.getValue().size()<assignedSlotCapacity ) {
+
+							System.out.println("slotToPerson_soll.size before assignment was: "+soll_entry.getValue().size());
+
+							Id<Person> reallocatedPerson = persons.get( currentNumberOfPersonsInThisSlot - 1 );
+
+							reallocatedPersonIdString = reallocatedPerson.toString();
+							System.out.println("reallocated person id was: "+reallocatedPerson);
+
+							soll_entry.getValue().add( reallocatedPerson );
+
+							System.out.println("slotToPerson_soll.size after assignment was: "+soll_entry.getValue());
+
+							quit = true;
+
 						}
-						//supernumPersons.add(p);
+
 					}
+
+					slotToPerson_soll.get( originalSlot ).remove( Id.createPersonId(reallocatedPersonIdString) );
+
+					currentNumberOfPersonsInThisSlot -=1 ;
+
 				}
+
+
+
+
+
 
 
 				System.out.println("time slot share was: "+sharePerTS(e.getKey()));
@@ -291,7 +344,7 @@ public class CreatePopulationModBasicPlans {
 
 			// erstelle die menschen in ihren slots wie gewohnt
 
-			for (Map.Entry<Integer, Set<Id<Person>>> personsInSlot : slotToPerson.entrySet()) {
+			for (Map.Entry<Integer, Set<Id<Person>>> personsInSlot : slotToPerson_soll.entrySet()) {
 
 
 				for (Id<Person> person : personsInSlot.getValue()) {
