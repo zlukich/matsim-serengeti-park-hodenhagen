@@ -154,7 +154,7 @@ public final class RunAllScenariosV2 {
 		this.numberOfTimeSlots = numberOfTimeSlots;
 		this.caseIdentifier = caseIdentifier;
 		this.networkFileName = ("serengeti-park-network-" + networkIdentifier+ ".xml.gz");
-		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run" + totalVisitors + "visitors" + "-50-50-highLinkCap-cap2-2-2west-2-eq");
+		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run" + totalVisitors + "visitors" + "-80-20");
 	}
 
 
