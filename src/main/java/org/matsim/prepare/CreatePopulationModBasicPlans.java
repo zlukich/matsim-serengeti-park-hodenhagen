@@ -712,13 +712,34 @@ public class CreatePopulationModBasicPlans {
 			return 1;
 		} else {
 
-			//return calculateLogNormallyDistributedTimeSlotShare(i);
-			return 1/numberOfTimeSlots;	//gleichverteilt
+			return calculateLogNormallyDistributedTimeSlotShare(i);
+			//return 1/numberOfTimeSlots;	//gleichverteilt
 
 
 			//return this.demandUnderCapacityRestBy_75.get(2*i) + this.demandUnderCapacityRestBy_75.get((2*i)+1);
 
 		}
+	}
+
+	private double timeslotCapacityRestriction (double percentage_restriction) {
+
+		double max_value = 0;
+
+		for ( int i=0; i<numberOfTimeSlots; i++ ) {
+			if ( calculateLogNormallyDistributedTimeSlotShare(i) > max_value )	 max_value = calculateLogNormallyDistributedTimeSlotShare(i);
+		}
+
+		double equally_shared_value = 1 / numberOfTimeSlots ;
+
+		double difference = max_value - equally_shared_value;
+
+		double max_capacity = difference * ( 1 - percentage_restriction );
+
+		return 1;
+
+
+
+
 	}
 
 	private double calculateLogNormallyDistributedTimeSlotShare (int i) {
