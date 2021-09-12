@@ -114,9 +114,7 @@ public final class RunAllScenariosV2 {
 		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots = new RunAllScenariosV2(eickeloh, 2,"EickelohOpen", "eickelohOpen_2TimeSlots");
 
 
-		/*RunAllScenariosV2 sevenTimeSlots = new RunAllScenariosV2(twoLots, 7,"v1.0", "7TimeSlots");
-		RunAllScenariosV2 eickelohOpenAndSevenTimeSlots = new RunAllScenariosV2(eickeloh, 7,"EickelohOpen", "eickelohOpenAnd7TimeSlots");
-		RunAllScenariosV2 eightTimeSlots = new RunAllScenariosV2(twoLots, 8,"v1.0", "8TimeSlots");*/
+		
 
 
 		List<RunAllScenariosV2> scenarios = new ArrayList<>();
@@ -129,9 +127,7 @@ public final class RunAllScenariosV2 {
 		scenarios.add(twoTimeSlots);
 		scenarios.add(eickelohOpenAndTwoTimeSlots);
 
-		/*scenarios.add(sevenTimeSlots);
-		scenarios.add(eickelohOpenAndSevenTimeSlots);
-		scenarios.add(eightTimeSlots);*/
+		
 
 
 		for (RunAllScenariosV2 s: scenarios) {
@@ -154,7 +150,7 @@ public final class RunAllScenariosV2 {
 		this.numberOfTimeSlots = numberOfTimeSlots;
 		this.caseIdentifier = caseIdentifier;
 		this.networkFileName = ("serengeti-park-network-" + networkIdentifier+ ".xml.gz");
-		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run" + totalVisitors + "visitors" + "-80-20");
+		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run" + totalVisitors + "visitors" + "-80-20-eq");
 	}
 
 
