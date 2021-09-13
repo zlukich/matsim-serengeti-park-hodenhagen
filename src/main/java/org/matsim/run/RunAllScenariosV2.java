@@ -64,7 +64,7 @@ public final class RunAllScenariosV2 {
 	private static final Logger log = Logger.getLogger(RunAllScenariosV2.class );
 
 	private final static int totalVisitors = 17000;
-	private final static double percentageSafariOwnCar = 0.8;
+	private final static double percentageSafariOwnCar = 0.5;
 	private final static double percentageVisitorsOwnCar = 0.9;
 	private final static double checkInOpeningTime = 9.5*3600.;
 	private final static double checkInClosingTime = 16.5*3600.; // check-in closing at 16:00 at the earliest  & 2 h before park closing time at the latest
@@ -74,6 +74,7 @@ public final class RunAllScenariosV2 {
 
 	private final ArrayList<String> parkingLots; //= {"Wasserlandparkplatz", "Serengeti-Parkplatz"}; // {"Eickeloh-Parkplatz"}
 	private final int numberOfTimeSlots;	// 1 for no slot system, e.g. 4 slots: 7h / 4 slots => 1.75 h - slot => sharePerTS in CreatePopulationV2 anpassen!
+	private final double percentage_restriction;
 
 	private final String caseIdentifier;
 	final String networkFileName; // = e.g. "serengeti-park-network-v1.0.xml.gz";
@@ -103,38 +104,146 @@ public final class RunAllScenariosV2 {
 		ArrayList<String> twoLots = new ArrayList<>(Arrays.asList("serengetiParkplatz", "wasserlandParkplatz"));
 		ArrayList<String> eickeloh = new ArrayList<>(Arrays.asList("eickelohParkplatz"));
 
-		/*RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1,"v1.0", "v1.0");
-		RunAllScenariosV2 eickelohOpen = new RunAllScenariosV2(eickeloh, 1,"EickelohOpen", "eickelohOpen");*/
-		RunAllScenariosV2 fourTimeSlots = new RunAllScenariosV2(twoLots, 4,"v1.0", "4TimeSlots");
-		RunAllScenariosV2 eickelohOpenAndFourTimeSlots = new RunAllScenariosV2(eickeloh, 4,"EickelohOpen", "eickelohOpen_4TimeSlots");
+		RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1, 0.0, "v1.0", "v1.0");
 
-		RunAllScenariosV2 threeTimeSlots = new RunAllScenariosV2(twoLots, 3,"v1.0", "3TimeSlots");
-		RunAllScenariosV2 eickelohOpenAndThreeTimeSlots = new RunAllScenariosV2(eickeloh, 3,"EickelohOpen", "eickelohOpen_3TimeSlots");
-		RunAllScenariosV2 twoTimeSlots = new RunAllScenariosV2(twoLots, 2,"v1.0", "2TimeSlots");
-		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots = new RunAllScenariosV2(eickeloh, 2,"EickelohOpen", "eickelohOpen_2TimeSlots");
+		RunAllScenariosV2 twoSlots0 = new RunAllScenariosV2(twoLots, 2, 0.0, "v1.0", "2TimeSlots0");
+		RunAllScenariosV2 twoSlots25 = new RunAllScenariosV2(twoLots, 2, 0.25, "v1.0", "2TimeSlots25");
+		RunAllScenariosV2 twoSlots50 = new RunAllScenariosV2(twoLots, 2, 0.5, "v1.0", "2TimeSlots50");
+		RunAllScenariosV2 twoSlots75 = new RunAllScenariosV2(twoLots, 2, 0.75, "v1.0", "2TimeSlots75");
+		RunAllScenariosV2 twoSlots100 = new RunAllScenariosV2(twoLots, 2, 1.0, "v1.0", "2TimeSlots100");
 
+		RunAllScenariosV2 threeSlots0 = new RunAllScenariosV2(twoLots, 3, 0.0, "v1.0", "3TimeSlots0");
+		RunAllScenariosV2 threeSlots25 = new RunAllScenariosV2(twoLots, 3, 0.25, "v1.0", "3TimeSlots25");
+		RunAllScenariosV2 threeSlots50 = new RunAllScenariosV2(twoLots, 3, 0.5, "v1.0", "3TimeSlots50");
+		RunAllScenariosV2 threeSlots75 = new RunAllScenariosV2(twoLots, 3, 0.75, "v1.0", "3TimeSlots75");
+		RunAllScenariosV2 threeSlots100 = new RunAllScenariosV2(twoLots, 3, 1.0, "v1.0", "3TimeSlots100");
 
-		
+		RunAllScenariosV2 fourSlots0 = new RunAllScenariosV2(twoLots, 4, 0.0, "v1.0", "4TimeSlots0");
+		RunAllScenariosV2 fourSlots25 = new RunAllScenariosV2(twoLots, 4, 0.25, "v1.0", "4TimeSlots25");
+		RunAllScenariosV2 fourSlots50 = new RunAllScenariosV2(twoLots, 4, 0.5, "v1.0", "4TimeSlots50");
+		RunAllScenariosV2 fourSlots75 = new RunAllScenariosV2(twoLots, 4, 0.75, "v1.0", "4TimeSlots75");
+		RunAllScenariosV2 fourSlots100 = new RunAllScenariosV2(twoLots, 4, 1.0, "v1.0", "4TimeSlots100");
 
+		RunAllScenariosV2 eickelohOpen = new RunAllScenariosV2(eickeloh, 1, 0.0, "EickelohOpen", "eickelohOpen");
+
+		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots0 = new RunAllScenariosV2(eickeloh, 2, 0.0,"EickelohOpen", "eickelohOpen_2TimeSlots0");
+		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots25 = new RunAllScenariosV2(eickeloh, 2, 0.25,"EickelohOpen", "eickelohOpen_2TimeSlots25");
+		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots50 = new RunAllScenariosV2(eickeloh, 2, 0.50,"EickelohOpen", "eickelohOpen_2TimeSlots50");
+		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots75 = new RunAllScenariosV2(eickeloh, 2, 0.75,"EickelohOpen", "eickelohOpen_2TimeSlots75");
+		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots100 = new RunAllScenariosV2(eickeloh, 2, 1.0,"EickelohOpen", "eickelohOpen_2TimeSlots100");
+
+		RunAllScenariosV2 eickelohOpenAndThreeTimeSlots0 = new RunAllScenariosV2(eickeloh, 3, 0.0,"EickelohOpen", "eickelohOpen_3TimeSlots0");
+		RunAllScenariosV2 eickelohOpenAndThreeTimeSlots25 = new RunAllScenariosV2(eickeloh, 3, 0.25,"EickelohOpen", "eickelohOpen_3TimeSlots25");
+		RunAllScenariosV2 eickelohOpenAndThreeTimeSlots50 = new RunAllScenariosV2(eickeloh, 3, 0.50,"EickelohOpen", "eickelohOpen_3TimeSlots50");
+		RunAllScenariosV2 eickelohOpenAndThreeTimeSlots75 = new RunAllScenariosV2(eickeloh, 3, 0.75,"EickelohOpen", "eickelohOpen_3TimeSlots75");
+		RunAllScenariosV2 eickelohOpenAndThreeTimeSlots100 = new RunAllScenariosV2(eickeloh, 3, 1.0,"EickelohOpen", "eickelohOpen_3TimeSlots100");
+
+		RunAllScenariosV2 eickelohOpenAndFourTimeSlots0 = new RunAllScenariosV2(eickeloh, 4, 0.0,"EickelohOpen", "eickelohOpen_4TimeSlots0");
+		RunAllScenariosV2 eickelohOpenAndFourTimeSlots25 = new RunAllScenariosV2(eickeloh, 4, 0.25,"EickelohOpen", "eickelohOpen_4TimeSlots25");
+		RunAllScenariosV2 eickelohOpenAndFourTimeSlots50 = new RunAllScenariosV2(eickeloh, 4, 0.50,"EickelohOpen", "eickelohOpen_4TimeSlots50");
+		RunAllScenariosV2 eickelohOpenAndFourTimeSlots75 = new RunAllScenariosV2(eickeloh, 4, 0.75,"EickelohOpen", "eickelohOpen_4TimeSlots75");
+		RunAllScenariosV2 eickelohOpenAndFourTimeSlots100 = new RunAllScenariosV2(eickeloh, 4, 1.0,"EickelohOpen", "eickelohOpen_4TimeSlots100");
 
 		List<RunAllScenariosV2> scenarios = new ArrayList<>();
+
+		scenarios.add(baseScenario);
+
+		scenarios.add(twoSlots0);
+		scenarios.add(twoSlots25);
+		scenarios.add(twoSlots50);
+		scenarios.add(twoSlots75);
+		scenarios.add(twoSlots100);
+
+		scenarios.add(threeSlots0);
+		scenarios.add(threeSlots25);
+		scenarios.add(threeSlots50);
+		scenarios.add(threeSlots75);
+		scenarios.add(threeSlots100);
+
+		scenarios.add(fourSlots0);
+		scenarios.add(fourSlots25);
+		scenarios.add(fourSlots50);
+		scenarios.add(fourSlots75);
+		scenarios.add(fourSlots100);
+
+		scenarios.add(eickelohOpen);
+
+		scenarios.add(eickelohOpenAndTwoTimeSlots0);
+		scenarios.add(eickelohOpenAndTwoTimeSlots25);
+		scenarios.add(eickelohOpenAndTwoTimeSlots50);
+		scenarios.add(eickelohOpenAndTwoTimeSlots75);
+		scenarios.add(eickelohOpenAndTwoTimeSlots100);
+
+		scenarios.add(eickelohOpenAndThreeTimeSlots0);
+		scenarios.add(eickelohOpenAndThreeTimeSlots25);
+		scenarios.add(eickelohOpenAndThreeTimeSlots50);
+		scenarios.add(eickelohOpenAndThreeTimeSlots75);
+		scenarios.add(eickelohOpenAndThreeTimeSlots100);
+
+		scenarios.add(eickelohOpenAndFourTimeSlots0);
+		scenarios.add(eickelohOpenAndFourTimeSlots25);
+		scenarios.add(eickelohOpenAndFourTimeSlots50);
+		scenarios.add(eickelohOpenAndFourTimeSlots75);
+		scenarios.add(eickelohOpenAndFourTimeSlots100);
+
+
+
+		//RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1, 0."v1.0", "v1.0");
+		//RunAllScenariosV2 eickelohOpen = new RunAllScenariosV2(eickeloh, 1,"EickelohOpen", "eickelohOpen");
+		/*RunAllScenariosV2 fourTimeSlots = new RunAllScenariosV2(twoLots, 4,0.25, "v1.0", "4TimeSlots");
+		RunAllScenariosV2 eickelohOpenAndFourTimeSlots = new RunAllScenariosV2(eickeloh, 4, 0.25,"EickelohOpen", "eickelohOpen_4TimeSlots");
+		RunAllScenariosV2 threeTimeSlots = new RunAllScenariosV2(twoLots, 3, 0.25,"v1.0", "3TimeSlots");
+		RunAllScenariosV2 eickelohOpenAndThreeTimeSlots = new RunAllScenariosV2(eickeloh, 3, 0.25,"EickelohOpen", "eickelohOpen_3TimeSlots");
+		RunAllScenariosV2 twoTimeSlots = new RunAllScenariosV2(twoLots, 2, 0.25,"v1.0", "2TimeSlots");		*/
+
+		/*RunAllScenariosV2 eickelohOpenAndTwoTimeSlots25 = new RunAllScenariosV2(eickeloh, 2, 0.25,"EickelohOpen", "eickelohOpen_2TimeSlots25");
+
+		RunAllScenariosV2 fourTimeSlots50 = new RunAllScenariosV2(twoLots, 4,0.5, "v1.0", "4TimeSlots50");
+		RunAllScenariosV2 eickelohOpenAndFourTimeSlots50 = new RunAllScenariosV2(eickeloh, 4, 0.5,"EickelohOpen", "eickelohOpen_4TimeSlots50");
+		RunAllScenariosV2 threeTimeSlots50 = new RunAllScenariosV2(twoLots, 3, 0.5,"v1.0", "3TimeSlots50");
+		RunAllScenariosV2 eickelohOpenAndThreeTimeSlots50 = new RunAllScenariosV2(eickeloh, 3, 0.5,"EickelohOpen", "eickelohOpen_3TimeSlots50");
+		RunAllScenariosV2 twoTimeSlots50 = new RunAllScenariosV2(twoLots, 2, 0.5,"v1.0", "2TimeSlots50");
+		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots50 = new RunAllScenariosV2(eickeloh, 2, 0.5,"EickelohOpen", "eickelohOpen_2TimeSlots50");
+
+		RunAllScenariosV2 fourTimeSlots75 = new RunAllScenariosV2(twoLots, 4,0.75, "v1.0", "4TimeSlots75");
+		RunAllScenariosV2 eickelohOpenAndFourTimeSlots75 = new RunAllScenariosV2(eickeloh, 4, 0.75,"EickelohOpen", "eickelohOpen_4TimeSlots75");
+		RunAllScenariosV2 threeTimeSlots75 = new RunAllScenariosV2(twoLots, 3, 0.75,"v1.0", "3TimeSlots75");
+		RunAllScenariosV2 eickelohOpenAndThreeTimeSlots75 = new RunAllScenariosV2(eickeloh, 3, 0.75,"EickelohOpen", "eickelohOpen_3TimeSlots75");
+		RunAllScenariosV2 twoTimeSlots75 = new RunAllScenariosV2(twoLots, 2, 0.75,"v1.0", "2TimeSlots75");
+		*/
+		//RunAllScenariosV2 eickelohOpenAndTwoTimeSlots75 = new RunAllScenariosV2(eickeloh, 2, 0.75,"EickelohOpen", "eickelohOpen_2TimeSlots75");
+
+
+
 		/*scenarios.add(baseScenario);
 		scenarios.add(eickelohOpen);*/
-		scenarios.add(fourTimeSlots);
-		scenarios.add(eickelohOpenAndFourTimeSlots);
-		scenarios.add(threeTimeSlots);
-		scenarios.add(eickelohOpenAndThreeTimeSlots);
-		scenarios.add(twoTimeSlots);
-		scenarios.add(eickelohOpenAndTwoTimeSlots);
 
-		
+		/*scenarios.add(eickelohOpenAndTwoTimeSlots25);
+
+		scenarios.add(fourTimeSlots50);
+		scenarios.add(eickelohOpenAndFourTimeSlots50);
+		scenarios.add(threeTimeSlots50);
+		scenarios.add(eickelohOpenAndThreeTimeSlots50);
+		scenarios.add(twoTimeSlots50);
+		scenarios.add(eickelohOpenAndTwoTimeSlots50);
+
+		scenarios.add(fourTimeSlots75);
+		scenarios.add(eickelohOpenAndFourTimeSlots75);
+		scenarios.add(threeTimeSlots75);
+		scenarios.add(eickelohOpenAndThreeTimeSlots75);
+		scenarios.add(twoTimeSlots75);*/
+		//scenarios.add(eickelohOpenAndTwoTimeSlots75);
+
+		/*scenarios.add(sevenTimeSlots);
+		scenarios.add(eickelohOpenAndSevenTimeSlots);
+		scenarios.add(eightTimeSlots);*/
 
 
 		for (RunAllScenariosV2 s: scenarios) {
 
 			Config config = prepareConfig( args, s.parkingLots, s.numberOfTimeSlots, s.networkFileName, s.outputDirectory ) ;
 
-			Scenario scenario = prepareScenario( config, s.caseIdentifier, s.parkingLots, s.numberOfTimeSlots);
+			Scenario scenario = prepareScenario( config, s.caseIdentifier, s.parkingLots, s.numberOfTimeSlots, s.percentage_restriction);
 			Controler controler = prepareControler( scenario ) ;
 			controler.run();
 			long endTime = System.currentTimeMillis();
@@ -145,12 +254,15 @@ public final class RunAllScenariosV2 {
 	}
 
 	//networkIdentifier: either v1.0 or EickelohOpen, caseIdentifier: either v1.0, EickelohOpen, TimeSlots or EickelohOpenAndTimeSlots
-	public RunAllScenariosV2(ArrayList<String> parkingLots, int numberOfTimeSlots, String networkIdentifier, String caseIdentifier) {
+	public RunAllScenariosV2(ArrayList<String> parkingLots, int numberOfTimeSlots, double percentage_restriction, String networkIdentifier, String caseIdentifier) {
 		this.parkingLots = parkingLots;
 		this.numberOfTimeSlots = numberOfTimeSlots;
+
+		this.percentage_restriction = percentage_restriction;
+
 		this.caseIdentifier = caseIdentifier;
 		this.networkFileName = ("serengeti-park-network-" + networkIdentifier+ ".xml.gz");
-		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run" + totalVisitors + "visitors" + "-80-20-eq");
+		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run" + totalVisitors + "visitors" + "-50-50");
 	}
 
 
@@ -166,7 +278,7 @@ public final class RunAllScenariosV2 {
 	}
 
 
-	public static Scenario prepareScenario( Config config, String caseIdentifier, ArrayList<String> parkingLots, int numberOfTimeSlots ) throws IOException {
+	public static Scenario prepareScenario( Config config, String caseIdentifier, ArrayList<String> parkingLots, int numberOfTimeSlots, double percentage_restriction ) throws IOException {
 		Gbl.assertNotNull( config );
 
 		final Scenario scenario = ScenarioUtils.createScenario( config );
@@ -352,7 +464,7 @@ public final class RunAllScenariosV2 {
 
 		} else {
 
-			CreatePopulationModBasicPlans createPopulation = new CreatePopulationModBasicPlans (parkingLots, numberOfTimeSlots, checkInOpeningTime, checkInClosingTime);
+			CreatePopulationModBasicPlans createPopulation = new CreatePopulationModBasicPlans (parkingLots, numberOfTimeSlots, percentage_restriction, checkInOpeningTime, checkInClosingTime);
 			createPopulation.run(scenario);
 
 		}

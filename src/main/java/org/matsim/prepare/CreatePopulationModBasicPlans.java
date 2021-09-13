@@ -69,27 +69,32 @@ public class CreatePopulationModBasicPlans {
 
 	private static final Logger log = Logger.getLogger(CreatePopulationModBasicPlans.class);
 
-//	private final ArrayList<Double> timeBasedDemand = new ArrayList<>( Arrays. asList(0.153808594, 0.304199219, 0.314453125, 0.141113281, 0.055175781, 0.024902344, 0.006347656, 0.) );
+	//	private final ArrayList<Double> timeBasedDemand = new ArrayList<>( Arrays. asList(0.153808594, 0.304199219, 0.314453125, 0.141113281, 0.055175781, 0.024902344, 0.006347656, 0.) );
 	private final ArrayList<Double> timeBasedDemand = new ArrayList<>( Arrays. asList(0.153808594, 0.152099609, 0.152099609, 0.157226563, 0.157226563, 0.070556641, 0.070556641, 0.027587891, 0.027587891, 0.012451172, 0.012451172, 0.003173828, 0.003173828) ); // 0.5-hourly demand
 	private final ArrayList<Double> demandUnderCapacityRestBy_25 = new ArrayList<>( Arrays. asList(0.1357777, 0.1357777, 0.1357777, 0.1357777, 0.1357777,
-		0.1357777, 0.098908019, 0.027587891, 0.027587891, 0.012451172, 0.012451172, 0.003173828, 0.003173828, 0.) );
+			0.1357777, 0.098908019, 0.027587891, 0.027587891, 0.012451172, 0.012451172, 0.003173828, 0.003173828, 0.) );
 	private final ArrayList<Double> demandUnderCapacityRestBy_50 = new ArrayList<>( Arrays. asList(0.11444444, 0.11444444,
 			0.11444444, 0.11444444, 0.11444444, 0.11444444, 0.11444444, 0.11444444, 0.05319448, 0.012451172, 0.012451172,
 			0.003173828, 0.003173828, 0.));
 	private final ArrayList<Double> demandUnderCapacityRestBy_75 = new ArrayList<>( Arrays. asList(0.0931111, 0.0931111, 0.0931111,
 			0.0931111, 0.0931111, 0.0931111, 0.0931111, 0.0931111, 0.0931111, 0.0931111, 0.062541344, 0.003173828, 0.003173828, 0.));
 
-	private int personCounter = 0;
+	private int sbusPersonCounter = 0;
+	private int owncarPersonCounter = 0;
+
 	private final double avg_freespeedTravelTime = 231.;
 	private final ArrayList<String> availableParkingLots;
 	private final double numberOfTimeSlots;
+
+	private final double percentage_restriction;
+
 	private final double timeSlotDuration;
 	private final double checkInOpeningTime;
-    private final double checkInClosingTime;
+	private final double checkInClosingTime;
 
 	private final double mean_demandThroughoutWholeDay = 2.447790887;
-    private final double stdDev_demandThroughoutWholeDay = 0.102385966;
-    private final double mean_slotArrivalDistribution = 4.31;
+	private final double stdDev_demandThroughoutWholeDay = 0.102385966;
+	private final double mean_slotArrivalDistribution = 4.31;
 	private final double stdDev_slotArrivalDistribution = 0.42;
 	private final double walkingTime = 252.;
 
@@ -112,7 +117,7 @@ public class CreatePopulationModBasicPlans {
 	private final String serengetiParkShp = "./original-input-data/shp-files/serengeti-park/serengeti-park.shp";
 	private final String eickelohParkplatzShp = "./additional-input-data/shp-files/eickeloh-parkplatz/eickeloh-parkplatz.shp";
 
-	String plansFilePath = "./scenarios/output/output-serengeti-park-v1.0-run17000visitors-80-20/serengeti-park-v1.0-run1.output_plans.xml.gz";
+	String plansFilePath = "./scenarios/output/output-serengeti-park-v1.0-run17000visitors-50-50/serengeti-park-v1.0-run1.output_plans.xml.gz";
 
 
 	public static void main(String[] args) throws IOException {
@@ -137,7 +142,7 @@ public class CreatePopulationModBasicPlans {
 
 		//CreatePopulationModBasicPlans popGenerator = new CreatePopulationModBasicPlans(twoLots, 4, 9.5*3600., 16.5*3600.);
 		//CreatePopulationModBasicPlans popGenerator = new CreatePopulationModBasicPlans(eickeloh, 1, 9.5*3600., 16.5*3600.);
-		CreatePopulationModBasicPlans popGenerator = new CreatePopulationModBasicPlans(eickeloh, 2, 9.5*3600., 16.5*3600.);
+		CreatePopulationModBasicPlans popGenerator = new CreatePopulationModBasicPlans(eickeloh, 4, 0.75, 9.5*3600., 16.5*3600.);
 
 
 
@@ -151,10 +156,13 @@ public class CreatePopulationModBasicPlans {
 	}
 
 
-	public CreatePopulationModBasicPlans(ArrayList<String> availableParkingLots, int numberOfTimeSlots, double checkInOpeningTime, double checkInClosingTime) throws IOException {
+	public CreatePopulationModBasicPlans(ArrayList<String> availableParkingLots, int numberOfTimeSlots, double percentage_restriction, double checkInOpeningTime, double checkInClosingTime) throws IOException {
 
 		this.availableParkingLots = availableParkingLots;
 		this.numberOfTimeSlots = numberOfTimeSlots;
+
+		this.percentage_restriction = percentage_restriction;
+
 		this.timeSlotDuration = (int) ( (checkInClosingTime-checkInOpeningTime) / numberOfTimeSlots );
 		this.checkInOpeningTime = checkInOpeningTime;
 		this.checkInClosingTime = checkInClosingTime;
@@ -331,17 +339,17 @@ public class CreatePopulationModBasicPlans {
 				}
 
 
-
-
-
-
-
 				System.out.println("time slot share was: "+sharePerTS(e.getKey()));
 
 
 				// HIER MUSS DAS
 
 
+			}
+
+			System.out.println(" menschen pro slot im endeffekt: " );
+			for (Map.Entry<Integer, Set<Id<Person>>> personsInSlot: slotToPerson_soll.entrySet()) {
+				System.out.println("slot " + personsInSlot.getKey() + "personnen " + personsInSlot.getValue().size());
 			}
 
 			// erstelle die menschen in ihren slots wie gewohnt
@@ -358,9 +366,9 @@ public class CreatePopulationModBasicPlans {
 					String origin = personName.substring(f_Position, s_Position);
 					Id<Link> linkId = Id.createLinkId(origin);
 
-						int first_Position =personName.indexOf('_')+1;
-						int second_Position =personName.indexOf('_',first_Position+1);
-						String agentNumber = personName.substring(first_Position, second_Position);
+					int first_Position =personName.indexOf('_')+1;
+					int second_Position =personName.indexOf('_',first_Position+1);
+					String agentNumber = personName.substring(first_Position, second_Position);
 
 
 					if ( !availableParkingLots.contains(eickelohParkplatzDestination) ) {
@@ -438,7 +446,7 @@ public class CreatePopulationModBasicPlans {
 		}
 
 
-		log.info("Population contains " + personCounter + " agents.");
+		log.info("Population contains " + sbusPersonCounter + " Safaribusnutzer und " + owncarPersonCounter + " Besucher nutzen das eigene Fahrzeug.");
 
 		return scenario;
 	}
@@ -479,7 +487,7 @@ public class CreatePopulationModBasicPlans {
 
 		pers.getAttributes().putAttribute("subpopulation", type);
 
-		personCounter++;
+		sbusPersonCounter++;
 
 	}
 
@@ -526,7 +534,7 @@ public class CreatePopulationModBasicPlans {
 
 		pers.getAttributes().putAttribute("subpopulation", finalType);
 
-		personCounter++;
+		owncarPersonCounter++;
 
 	}
 
@@ -562,7 +570,7 @@ public class CreatePopulationModBasicPlans {
 
 		pers.getAttributes().putAttribute("subpopulation", type);
 
-		personCounter++;
+		sbusPersonCounter++;
 
 	}
 
@@ -603,7 +611,7 @@ public class CreatePopulationModBasicPlans {
 
 		pers.getAttributes().putAttribute("subpopulation", finalType);
 
-		personCounter++;
+		owncarPersonCounter++;
 
 	}
 
@@ -642,7 +650,7 @@ public class CreatePopulationModBasicPlans {
 		}
 		return (i + (rnd2 * abweichung * vorzeichen));
 	}
-	
+
 	private double calculateNormallyDistributedTime(double mean, double stdDev) {
 		Random random = MatsimRandom.getRandom();
 		boolean leaveLoop = false;
@@ -666,22 +674,22 @@ public class CreatePopulationModBasicPlans {
 	// gibt mit mean_demandThroughoutWholeDay = 2.447790887 und stdDev_demandThroughoutWholeDay = 0.102385966 sowas hier zurueck: 11.120570031423256 * 3600
 	private double calculateLogNormallyDistributedTime(double mean, double stdDev, double earliestTime, double latestTime) {
 
-        LogNormalDistribution logNormal = new LogNormalDistribution(mean, stdDev);
-        boolean leaveLoop = false;
-        double endTimeInSec = Double.MIN_VALUE;
+		LogNormalDistribution logNormal = new LogNormalDistribution(mean, stdDev);
+		boolean leaveLoop = false;
+		double endTimeInSec = Double.MIN_VALUE;
 
-        while (!leaveLoop) {
-            endTimeInSec = logNormal.sample() * 3600.;
+		while (!leaveLoop) {
+			endTimeInSec = logNormal.sample() * 3600.;
 
-            if (endTimeInSec >= earliestTime && endTimeInSec <= latestTime) {
-                leaveLoop = true;
-            }
-        }
+			if (endTimeInSec >= earliestTime && endTimeInSec <= latestTime) {
+				leaveLoop = true;
+			}
+		}
 
-        if (endTimeInSec < 0. || endTimeInSec > 24. * 3600) {
-            throw new RuntimeException("Shouldn't happen. Aborting...");
-        }
-        return endTimeInSec;
+		if (endTimeInSec < 0. || endTimeInSec > 24. * 3600) {
+			throw new RuntimeException("Shouldn't happen. Aborting...");
+		}
+		return endTimeInSec;
 
 	}
 
@@ -692,7 +700,7 @@ public class CreatePopulationModBasicPlans {
 		double endTimeInSec = Double.MIN_VALUE;
 
 		while (!leaveLoop) {
-				endTimeInSec = (timeSlotDuration / 300. ) * logNormal.sample();
+			endTimeInSec = (timeSlotDuration / 300. ) * logNormal.sample();
 
 			if (endTimeInSec >= 0. && endTimeInSec <= timeSlotDuration) {
 				leaveLoop = true;
@@ -712,8 +720,12 @@ public class CreatePopulationModBasicPlans {
 			return 1;
 		} else {
 
+			return timeslotCapacityRestriction(percentage_restriction);
+
 			//return calculateLogNormallyDistributedTimeSlotShare(i);
-			return 1/numberOfTimeSlots;	//gleichverteilt
+
+
+			//return 1/numberOfTimeSlots;	//gleichverteilt
 
 
 			//return this.demandUnderCapacityRestBy_75.get(2*i) + this.demandUnderCapacityRestBy_75.get((2*i)+1);
@@ -731,14 +743,10 @@ public class CreatePopulationModBasicPlans {
 
 		double equally_shared_value = 1 / numberOfTimeSlots ;
 
-		double difference = max_value - equally_shared_value;
+		// max_cap = untereGrenze + ( obereGrenze - untereGrenze ) * ( 1 - percentage_restriction )
+		double max_capacity = equally_shared_value + ( max_value -equally_shared_value ) * ( 1 - percentage_restriction );
 
-		double max_capacity = difference * ( 1 - percentage_restriction );
-
-		return 1;
-
-
-
+		return max_capacity;
 
 	}
 

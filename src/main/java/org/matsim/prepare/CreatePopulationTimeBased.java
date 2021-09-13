@@ -58,10 +58,10 @@ public class CreatePopulationTimeBased {
 
 	private static final Logger log = Logger.getLogger(CreatePopulationTimeBased.class);
 
-//	private final ArrayList<Double> timeBasedDemand = new ArrayList<>( Arrays. asList(0.153808594, 0.304199219, 0.314453125, 0.141113281, 0.055175781, 0.024902344, 0.006347656, 0.) );
+	//	private final ArrayList<Double> timeBasedDemand = new ArrayList<>( Arrays. asList(0.153808594, 0.304199219, 0.314453125, 0.141113281, 0.055175781, 0.024902344, 0.006347656, 0.) );
 	private final ArrayList<Double> timeBasedDemand = new ArrayList<>( Arrays. asList(0.153808594, 0.152099609, 0.152099609, 0.157226563, 0.157226563, 0.070556641, 0.070556641, 0.027587891, 0.027587891, 0.012451172, 0.012451172, 0.003173828, 0.003173828) ); // 0.5-hourly demand
 	private final ArrayList<Double> demandUnderCapacityRestBy_25 = new ArrayList<>( Arrays. asList(0.1357777, 0.1357777, 0.1357777, 0.1357777, 0.1357777,
-		0.1357777, 0.098908019, 0.027587891, 0.027587891, 0.012451172, 0.012451172, 0.003173828, 0.003173828, 0.) );
+			0.1357777, 0.098908019, 0.027587891, 0.027587891, 0.012451172, 0.012451172, 0.003173828, 0.003173828, 0.) );
 	private final ArrayList<Double> demandUnderCapacityRestBy_50 = new ArrayList<>( Arrays. asList(0.11444444, 0.11444444,
 			0.11444444, 0.11444444, 0.11444444, 0.11444444, 0.11444444, 0.11444444, 0.05319448, 0.012451172, 0.012451172,
 			0.003173828, 0.003173828, 0.));
@@ -74,11 +74,11 @@ public class CreatePopulationTimeBased {
 	private final double numberOfTimeSlots;
 	private final double timeSlotDuration;
 	private final double checkInOpeningTime;
-    private final double checkInClosingTime;
+	private final double checkInClosingTime;
 
 	private final double mean_demandThroughoutWholeDay = 2.447790887;
-    private final double stdDev_demandThroughoutWholeDay = 0.102385966;
-    private final double mean_slotArrivalDistribution = 4.31;
+	private final double stdDev_demandThroughoutWholeDay = 0.102385966;
+	private final double mean_slotArrivalDistribution = 4.31;
 	private final double stdDev_slotArrivalDistribution = 0.42;
 	private final double walkingTime = 252.;
 
@@ -111,14 +111,12 @@ public class CreatePopulationTimeBased {
 		config.network().setInputFile(networkFile);
 		Scenario scenario = ScenarioUtils.loadScenario(config);
 
-		// BaseC: Safari: 2000, each parking lot: 1250
-		// EickelohOpen: Safari: 2000, eickeloh: 2500
-		// TimeSlots: Safari: 2000, each parking lot: 1250
-		// EickelohOpenAndTimeSlots: EickelohOpen: Safari: 2000, eickeloh: 2500
+		// BaseC: Safari: 2500, each parking lot: 1000
+
 
 		ArrayList<String> twoLots = new ArrayList<>(Arrays.asList("serengetiParkplatz", "wasserlandParkplatz"));
 		ArrayList<String> eickeloh = new ArrayList<>(Arrays.asList("eickelohParkplatz"));
-		CreatePopulationV2 popGenerator = new CreatePopulationV2(2000, 1250, 1250, 0, twoLots, 1, 9.5*3600., 16.5*3600.);
+		CreatePopulationTimeBased popGenerator = new CreatePopulationTimeBased(2500, 1000, 1000, twoLots, 1, 9.5*3600., 16.5*3600.);
 		//CreatePopulationV2 popGenerator = new CreatePopulationV2(2000, 0, 0, 2500, eickeloh, 1, 9.5*3600., 16.5*3600.);
 		//CreatePopulationV2 popGenerator = new CreatePopulationV2(2000, 1250, 1250, 0, twoLots, 4, 9.5*3600., 16.5*3600.);
 		//CreatePopulationV2 popGenerator = new CreatePopulationV2(2000, 1250, 1250, 0, twoLots, 7, 9.5*3600., 16.5*3600.);
@@ -134,7 +132,7 @@ public class CreatePopulationTimeBased {
 
 		this.availableParkingLots = availableParkingLots;
 		this.numberOfTimeSlots = numberOfTimeSlots;
-		this.timeSlotDuration = (int) ( (checkInClosingTime-checkInOpeningTime) / numberOfTimeSlots );
+		this.timeSlotDuration = Math.round( (checkInClosingTime-checkInOpeningTime) / numberOfTimeSlots );
 		this.checkInOpeningTime = checkInOpeningTime;
 		this.checkInClosingTime = checkInClosingTime;
 
@@ -207,21 +205,21 @@ public class CreatePopulationTimeBased {
 				//WasserlandParkplatz
 				if (availableParkingLots.contains(wasserlandParkplatzDestination)) {
 					for (Id<Link> linkId : linkId2numberOfVisitorsWasserland.keySet()) {
-						createVisitors(scenario, rnd, linkId, (int) ( linkId2numberOfVisitorsWasserland.get(linkId) * timeBasedDemand.get(i) ), this.wasserlandParkplatzDestination, i);
+						createVisitors(scenario, rnd, linkId, Math.round( linkId2numberOfVisitorsWasserland.get(linkId) * timeBasedDemand.get(i) ), this.wasserlandParkplatzDestination, i);
 					}
 				}
 
 				//SerengetiParkplatz
 				if (availableParkingLots.contains(serengetiParkplatzDestination)) {
 					for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiParkplatz.keySet()) {
-						createVisitors(scenario, rnd, linkId, (int) ( linkId2numberOfVisitorsSerengetiParkplatz.get(linkId) * timeBasedDemand.get(i) ), this.serengetiParkplatzDestination, i);
+						createVisitors(scenario, rnd, linkId, Math.round( linkId2numberOfVisitorsSerengetiParkplatz.get(linkId) * timeBasedDemand.get(i) ), this.serengetiParkplatzDestination, i);
 					}
 				}
 
 				// Eickeloh-Parkplatz
 				if (availableParkingLots.contains(eickelohParkplatzDestination)) {
 					for (Id<Link> linkId : linkId2numberOfVisitorsEickelohParkplatz.keySet()) {
-						createVisitors(scenario, rnd, linkId, (int) ( linkId2numberOfVisitorsEickelohParkplatz.get(linkId) * timeBasedDemand.get(i) ), this.eickelohParkplatzDestination, i);
+						createVisitors(scenario, rnd, linkId, Math.round( linkId2numberOfVisitorsEickelohParkplatz.get(linkId) * timeBasedDemand.get(i) ), this.eickelohParkplatzDestination, i);
 					}
 				}
 
@@ -229,13 +227,13 @@ public class CreatePopulationTimeBased {
 				if (!availableParkingLots.contains(eickelohParkplatzDestination)) {
 
 					for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiPark.keySet()) {
-						createSafariVisitors(scenario, rnd, linkId, (int) (linkId2numberOfVisitorsSerengetiPark.get(linkId) * timeBasedDemand.get(i) ), this.serengetiParkDestination, "", i);
+						createSafariVisitors(scenario, rnd, linkId, Math.round(linkId2numberOfVisitorsSerengetiPark.get(linkId) * timeBasedDemand.get(i) ), this.serengetiParkDestination, "", i);
 					}
 
 				} else {
 
 					for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiPark.keySet()) {
-						createSafariVisitors(scenario, rnd, linkId, (int) (linkId2numberOfVisitorsSerengetiPark.get(linkId) * timeBasedDemand.get(i) / availableParkingLots.size()), this.serengetiParkDestination, this.eickelohParkplatzDestination, i);
+						createSafariVisitors(scenario, rnd, linkId, Math.round(linkId2numberOfVisitorsSerengetiPark.get(linkId) * timeBasedDemand.get(i) / availableParkingLots.size()), this.serengetiParkDestination, this.eickelohParkplatzDestination, i);
 					}
 
 				}
@@ -250,19 +248,19 @@ public class CreatePopulationTimeBased {
 				//WasserlandParkplatz
 				if ( availableParkingLots.contains(this.wasserlandParkplatzDestination) ) {
 					for (Id<Link> linkId : linkId2numberOfVisitorsWasserland.keySet()) {
-						createVisitors(scenario, rnd, linkId, (int) ( linkId2numberOfVisitorsWasserland.get(linkId) * sharePerTS(i) ), this.wasserlandParkplatzDestination, i);
+						createVisitors(scenario, rnd, linkId, Math.round( linkId2numberOfVisitorsWasserland.get(linkId) * sharePerTS(i) ), this.wasserlandParkplatzDestination, i);
 					}
 				}
 				//SerengetiParkplatz
 				if ( availableParkingLots.contains(this.serengetiParkplatzDestination) ) {
 					for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiParkplatz.keySet()) {
-						createVisitors(scenario, rnd, linkId, (int) ( linkId2numberOfVisitorsSerengetiParkplatz.get(linkId) * sharePerTS(i) ), this.serengetiParkplatzDestination, i);
+						createVisitors(scenario, rnd, linkId, Math.round( linkId2numberOfVisitorsSerengetiParkplatz.get(linkId) * sharePerTS(i) ), this.serengetiParkplatzDestination, i);
 					}
 				}
 				// Eickeloh Parkplatz
 				if ( availableParkingLots.contains(this.eickelohParkplatzDestination) ) {
 					for (Id<Link> linkId : linkId2numberOfVisitorsEickelohParkplatz.keySet()) {
-						createVisitors(scenario, rnd, linkId, (int) ( linkId2numberOfVisitorsEickelohParkplatz.get(linkId) * sharePerTS(i) ), this.eickelohParkplatzDestination, i);
+						createVisitors(scenario, rnd, linkId, Math.round( linkId2numberOfVisitorsEickelohParkplatz.get(linkId) * sharePerTS(i) ), this.eickelohParkplatzDestination, i);
 					}
 				}
 
@@ -271,13 +269,13 @@ public class CreatePopulationTimeBased {
 				if (!availableParkingLots.contains(eickelohParkplatzDestination)) {
 
 					for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiPark.keySet()) {
-						createSafariVisitors(scenario, rnd, linkId, (int) ( linkId2numberOfVisitorsSerengetiPark.get(linkId) * sharePerTS(i) ), this.serengetiParkDestination, "", i);
+						createSafariVisitors(scenario, rnd, linkId, Math.round( linkId2numberOfVisitorsSerengetiPark.get(linkId) * sharePerTS(i) ), this.serengetiParkDestination, "", i);
 					}
 
 				} else {
 
 					for (Id<Link> linkId : linkId2numberOfVisitorsSerengetiPark.keySet()) {
-						createSafariVisitors(scenario, rnd, linkId, (int) ( linkId2numberOfVisitorsSerengetiPark.get(linkId) * sharePerTS(i) / availableParkingLots.size() ), this.serengetiParkDestination, this.eickelohParkplatzDestination,i);
+						createSafariVisitors(scenario, rnd, linkId, Math.round( linkId2numberOfVisitorsSerengetiPark.get(linkId) * sharePerTS(i) / availableParkingLots.size() ), this.serengetiParkDestination, this.eickelohParkplatzDestination,i);
 					}
 
 				}
@@ -508,7 +506,7 @@ public class CreatePopulationTimeBased {
 		}
 		return (i + (rnd2 * abweichung * vorzeichen));
 	}
-	
+
 	private double calculateNormallyDistributedTime(double mean, double stdDev) {
 		Random random = MatsimRandom.getRandom();
 		boolean leaveLoop = false;
@@ -532,22 +530,22 @@ public class CreatePopulationTimeBased {
 	// gibt mit mean_demandThroughoutWholeDay = 2.447790887 und stdDev_demandThroughoutWholeDay = 0.102385966 sowas hier zurueck: 11.120570031423256 * 3600
 	private double calculateLogNormallyDistributedTime(double mean, double stdDev, double earliestTime, double latestTime) {
 
-        LogNormalDistribution logNormal = new LogNormalDistribution(mean, stdDev);
-        boolean leaveLoop = false;
-        double endTimeInSec = Double.MIN_VALUE;
+		LogNormalDistribution logNormal = new LogNormalDistribution(mean, stdDev);
+		boolean leaveLoop = false;
+		double endTimeInSec = Double.MIN_VALUE;
 
-        while (!leaveLoop) {
-            endTimeInSec = logNormal.sample() * 3600.;
+		while (!leaveLoop) {
+			endTimeInSec = logNormal.sample() * 3600.;
 
-            if (endTimeInSec >= earliestTime && endTimeInSec <= latestTime) {
-                leaveLoop = true;
-            }
-        }
+			if (endTimeInSec >= earliestTime && endTimeInSec <= latestTime) {
+				leaveLoop = true;
+			}
+		}
 
-        if (endTimeInSec < 0. || endTimeInSec > 24. * 3600) {
-            throw new RuntimeException("Shouldn't happen. Aborting...");
-        }
-        return endTimeInSec;
+		if (endTimeInSec < 0. || endTimeInSec > 24. * 3600) {
+			throw new RuntimeException("Shouldn't happen. Aborting...");
+		}
+		return endTimeInSec;
 
 	}
 
@@ -558,7 +556,7 @@ public class CreatePopulationTimeBased {
 		double endTimeInSec = Double.MIN_VALUE;
 
 		while (!leaveLoop) {
-				endTimeInSec = (timeSlotDuration / 300. ) * logNormal.sample();
+			endTimeInSec = (timeSlotDuration / 300. ) * logNormal.sample();
 
 			if (endTimeInSec >= 0. && endTimeInSec <= timeSlotDuration) {
 				leaveLoop = true;
