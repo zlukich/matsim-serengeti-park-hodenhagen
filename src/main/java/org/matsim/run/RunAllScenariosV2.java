@@ -64,7 +64,7 @@ public final class RunAllScenariosV2 {
 	private static final Logger log = Logger.getLogger(RunAllScenariosV2.class );
 
 	private final static int totalVisitors = 17000;
-	private final static double percentageSafariOwnCar = 0.5;
+	private final static double percentageSafariOwnCar = 0.8;
 	private final static double percentageVisitorsOwnCar = 0.9;
 	private final static double checkInOpeningTime = 9.5*3600.;
 	private final static double checkInClosingTime = 16.5*3600.; // check-in closing at 16:00 at the earliest  & 2 h before park closing time at the latest
@@ -86,6 +86,7 @@ public final class RunAllScenariosV2 {
 	private final static int numberOfUltimateCheckInBooths = 5;
 	private final static int numberOfNorthCheckInBooths = 6;
 	private final static int numberOfSouthCheckInBooths = 9;
+	private final static double numberOfSouthLanes = 7.;
 
 
 	public static void main(String[] args) throws IOException {
@@ -187,7 +188,6 @@ public final class RunAllScenariosV2 {
 		scenarios.add(eickelohOpenAndFourTimeSlots100);
 
 
-
 		//RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1, 0."v1.0", "v1.0");
 		//RunAllScenariosV2 eickelohOpen = new RunAllScenariosV2(eickeloh, 1,"EickelohOpen", "eickelohOpen");
 		/*RunAllScenariosV2 fourTimeSlots = new RunAllScenariosV2(twoLots, 4,0.25, "v1.0", "4TimeSlots");
@@ -262,7 +262,7 @@ public final class RunAllScenariosV2 {
 
 		this.caseIdentifier = caseIdentifier;
 		this.networkFileName = ("serengeti-park-network-" + networkIdentifier+ ".xml.gz");
-		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run" + totalVisitors + "visitors" + "-50-50");
+		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run" + totalVisitors + "visitors" + "-80");
 	}
 
 
@@ -286,7 +286,7 @@ public final class RunAllScenariosV2 {
 
 		Set<Id<Link>> forCarsRestrictedLinks = new HashSet<>(Arrays.asList(
 
-				// ultimate check-in path (actually bus lane) should be unidirectional
+				// ultimate check-in path (bus lane) should be unidirectional
 				Id.createLinkId("3622817520000r"), Id.createLinkId("3622817410000f"),
 
 				/*// bus lane reverse direction
@@ -347,108 +347,120 @@ public final class RunAllScenariosV2 {
 			}
 
 
+			// use single check-in link instead of several parallel check-in links...
+			if (kassenLinksToBeRestricted.contains(link.getId())) {
+				link.setFreespeed(0.001);
+				link.setCapacity(0.);
+			}
 
-			// ms: hier beginnen dinge die nur relevant sind wenn eickeloh nicht geoeffnet ist
+			if (usedKassenLinksNorth.contains(link.getId())) {
+				link.setNumberOfLanes(numberOfNorthCheckInBooths);
+				link.setCapacity(numberOfNorthCheckInBooths * 720);
+			}
 
-			if ( !parkingLots.contains("eickelohParkplatz") ) {
+			if (usedKassenLinksSouth.contains(link.getId())) {
+				link.setNumberOfLanes(numberOfSouthLanes);
+				link.setCapacity(numberOfSouthLanes * 720);
+			}
 
-				// use single check-in link instead of several parallel check-in links...
-				if (kassenLinksToBeRestricted.contains(link.getId())) {
+			// link directly behind southern check-in
+			if (link.getId().toString().equals("2184588440003f")) {
+				link.setNumberOfLanes(4);
+				link.setCapacity(4 * 720.);
+			}
+
+
+			// keep just one link for the north check-in area
+			if (link.getId().toString().equals("3624560720003f")) {
+				link.setCapacity(capacityPerCheckInBooth * numberOfNorthCheckInBooths);
+				link.setFreespeed(2.7777);
+
+				// account for the other check-in links
+				link.setNumberOfLanes(numberOfNorthCheckInBooths);
+			}
+
+
+			// keep just one link for the south check-in area
+			if (link.getId().toString().equals("2184588440002f")) {
+				link.setCapacity(capacityPerCheckInBooth * numberOfSouthCheckInBooths);
+				link.setFreespeed(2.7777);
+
+				link.setNumberOfLanes(7.);
+			}
+
+			// install ultimate check-in booth next to main access link
+			if (link.getId().toString().equals("3622817520005f")) {
+				link.setCapacity(capacityPerCheckInBooth * numberOfUltimateCheckInBooths);
+				link.setFreespeed(2.7777);
+
+				//link.setLength(30. * (numberOfUltimateCheckInBooths - 1));
+				link.setNumberOfLanes(2.);
+			}
+
+
+			if ( parkingLots.contains("eickelohParkplatz") ) {
+
+				// north check-in
+				if (link.getId().toString().equals("3624560720003f")) {
 					link.setFreespeed(0.001);
 					link.setCapacity(0.);
 				}
 
-				if (usedKassenLinksNorth.contains(link.getId())) {
-					link.setNumberOfLanes(numberOfNorthCheckInBooths);
-					link.setCapacity(numberOfNorthCheckInBooths * 720);
+				// bus lane to ultimate check-in
+				if (link.getId().toString().equals("3622817520001f")) {
+					link.setFreespeed(0.001);
+					link.setCapacity(0.);
 				}
 
-				if (usedKassenLinksSouth.contains(link.getId())) {
-					link.setNumberOfLanes(6.);
-					link.setCapacity(6. * 720);
-				}
-
-				// link directly behind southern check-in
-				if (link.getId().toString().equals("2184588440003f")) {
-					link.setNumberOfLanes(4);
-					link.setCapacity(4 * 720.);
-				}
-
-
-				// keep just one link for the north check-in area
-				if (link.getId().toString().equals("3624560720003f")) {
-					link.setCapacity(capacityPerCheckInBooth * numberOfNorthCheckInBooths);
-					link.setFreespeed(2.7777);
-
-					// account for the other check-in links
-					link.setNumberOfLanes(numberOfNorthCheckInBooths);
-				}
-
-
-				// keep just one link for the south check-in area
+				// increase southern-capacity to normal
 				if (link.getId().toString().equals("2184588440002f")) {
-					link.setCapacity(capacityPerCheckInBooth * numberOfSouthCheckInBooths);
-					link.setFreespeed(2.7777);
-
-					// account for the other check-in links
-					//link.setLength(40. * (numberOfSouthCheckInBooths - 1));
-					link.setNumberOfLanes(7.);
+					link.setCapacity(numberOfSouthLanes * 720.);
 				}
 
-				// install ultimate check-in booth next to main access link
-				if (link.getId().toString().equals("3622817520005f")) {
-					link.setCapacity(capacityPerCheckInBooth * numberOfUltimateCheckInBooths);
-					link.setFreespeed(2.7777);
-
-					//link.setLength(30. * (numberOfUltimateCheckInBooths - 1));
-					link.setNumberOfLanes(2.);
-				}
-			}
-		}
-
-		// ms: ebenfalls dinge die im massnahmenfall eickeloh geoeffnet nicht relevant sind
-		if ( !parkingLots.contains("eickelohParkplatz") ) {
-
-			Id<Link> linkIdBeforeIntersection = Id.createLinkId("1325764790002f");
-			Id<Link> nextLinkIdLeftTurn = Id.createLinkId("3624560720000f");
-			Id<Link> nextLinkIdStraight = Id.createLinkId("1325764790003f");
-			Id<Lane> leftTurnLaneId = Id.create("1325764790002f_left", Lane.class);
-			Id<Lane> straightLaneId = Id.create("1325764790002f_straight", Lane.class);
-
-			LanesFactory factory = scenario.getLanes().getFactory();
-			// add lanes for link "1325764790002f"
-			{
-				LanesToLinkAssignment laneLinkAssignment = factory.createLanesToLinkAssignment(linkIdBeforeIntersection);
-
-				Lane laneIn = factory.createLane(Id.create("1325764790002f_in", Lane.class));
-				laneIn.addToLaneId(leftTurnLaneId);
-				laneIn.addToLaneId(straightLaneId);
-				laneIn.setStartsAtMeterFromLinkEnd(165.67285516126265);
-				laneIn.setCapacityVehiclesPerHour(720. * 4);
-				laneIn.setNumberOfRepresentedLanes(4.0);
-				laneLinkAssignment.addLane(laneIn);
-
-				// TODO: outgoing lanes must start after the in lane
-				Lane lane0 = factory.createLane(leftTurnLaneId);
-				lane0.addToLinkId(nextLinkIdLeftTurn); // turn left towards check-in link
-				lane0.setStartsAtMeterFromLinkEnd(165.67285516126265 - 1);
-				lane0.setCapacityVehiclesPerHour(720.);
-				laneLinkAssignment.addLane(lane0);
-
-				Lane lane1 = factory.createLane(straightLaneId);
-				lane1.addToLinkId(nextLinkIdStraight); // straight!
-				lane1.setStartsAtMeterFromLinkEnd(165.67285516126265 - 1);
-				lane1.setCapacityVehiclesPerHour(720. * 3.0);
-				lane1.setNumberOfRepresentedLanes(3.0);
-				laneLinkAssignment.addLane(lane1);
-
-				scenario.getLanes().addLanesToLinkAssignment(laneLinkAssignment);
 			}
 
-			/*// install ultimate check-in booth next to main access link
-			NetworkFactory networkFactory = scenario.getNetwork().getFactory();*/
 
 		}
+
+
+		Id<Link> linkIdBeforeIntersection = Id.createLinkId("1325764790002f");
+		Id<Link> nextLinkIdLeftTurn = Id.createLinkId("3624560720000f");
+		Id<Link> nextLinkIdStraight = Id.createLinkId("1325764790003f");
+		Id<Lane> leftTurnLaneId = Id.create("1325764790002f_left", Lane.class);
+		Id<Lane> straightLaneId = Id.create("1325764790002f_straight", Lane.class);
+
+		LanesFactory factory = scenario.getLanes().getFactory();
+		// add lanes for link "1325764790002f"
+		{
+			LanesToLinkAssignment laneLinkAssignment = factory.createLanesToLinkAssignment(linkIdBeforeIntersection);
+
+			Lane laneIn = factory.createLane(Id.create("1325764790002f_in", Lane.class));
+			laneIn.addToLaneId(leftTurnLaneId);
+			laneIn.addToLaneId(straightLaneId);
+			laneIn.setStartsAtMeterFromLinkEnd(165.67285516126265);
+			laneIn.setCapacityVehiclesPerHour(720. * 4);
+			laneIn.setNumberOfRepresentedLanes(4.0);
+			laneLinkAssignment.addLane(laneIn);
+
+			// TODO: outgoing lanes must start after the in lane
+			Lane lane0 = factory.createLane(leftTurnLaneId);
+			lane0.addToLinkId(nextLinkIdLeftTurn); // turn left towards check-in link
+			lane0.setStartsAtMeterFromLinkEnd(165.67285516126265 - 1);
+			lane0.setCapacityVehiclesPerHour(720.);
+			laneLinkAssignment.addLane(lane0);
+
+			Lane lane1 = factory.createLane(straightLaneId);
+			lane1.addToLinkId(nextLinkIdStraight); // straight!
+			lane1.setStartsAtMeterFromLinkEnd(165.67285516126265 - 1);
+			lane1.setCapacityVehiclesPerHour(720. * 3.0);
+			lane1.setNumberOfRepresentedLanes(3.0);
+			laneLinkAssignment.addLane(lane1);
+
+			scenario.getLanes().addLanesToLinkAssignment(laneLinkAssignment);
+		}
+
+
+
 
 		if (caseIdentifier.equals("v1.0")) {
 			// demand: car occupation 3.4, 90% of all visitors arrive by own car while 50% of all visitors go on safari by own car

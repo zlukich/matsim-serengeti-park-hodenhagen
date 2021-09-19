@@ -464,10 +464,17 @@ public class NetworkAddEickelohOpen {
 		// DO NOT INCREASE IT ANYMORE!!!!!!!!
 
 
+		// allow access to the safari by turning left
+		createSimpleInverseLink(network,factory,"7232641190002f", "7232641190002r");
+		createSimpleInverseLink(network,factory,"7232641190001f", "7232641190001r");
+
+
 
 		// increase capacity on southern (exit route) links from 1 to 2 lanes:
 		Set<Id<Link>> toIncreaseCapacityLinks = new HashSet<>(Arrays.asList(
 
+
+				Id.createLinkId("7232641190002r"),
 
 				Id.createLinkId("7232641190001r"),
 				Id.createLinkId("7232641190002f"),
@@ -501,11 +508,6 @@ public class NetworkAddEickelohOpen {
 
 
 
-
-		// allow access to the safari by turning left
-		createSimpleInverseLink(network,factory,"7232641190002f", "7232641190002r");
-		createSimpleInverseLink(network,factory,"7232641190001f", "7232641190001r");
-
 		// restrict links which do not belong to the intended "to-the-safari"-route
 		Set<Id<Link>> restrictedLinks = new HashSet<>(Arrays.asList(
 
@@ -536,7 +538,9 @@ public class NetworkAddEickelohOpen {
 
 				//serengetiparkplatz nordseite
 				Id.createLinkId("7259809370008r"),
-				Id.createLinkId("7259809390010r")
+				Id.createLinkId("7259809390010r"),
+				Id.createLinkId("774722210000r")
+
 
 
 		));
