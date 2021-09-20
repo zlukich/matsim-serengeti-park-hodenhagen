@@ -188,57 +188,6 @@ public final class RunAllScenariosV2 {
 		scenarios.add(eickelohOpenAndFourTimeSlots100);
 
 
-		//RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1, 0."v1.0", "v1.0");
-		//RunAllScenariosV2 eickelohOpen = new RunAllScenariosV2(eickeloh, 1,"EickelohOpen", "eickelohOpen");
-		/*RunAllScenariosV2 fourTimeSlots = new RunAllScenariosV2(twoLots, 4,0.25, "v1.0", "4TimeSlots");
-		RunAllScenariosV2 eickelohOpenAndFourTimeSlots = new RunAllScenariosV2(eickeloh, 4, 0.25,"EickelohOpen", "eickelohOpen_4TimeSlots");
-		RunAllScenariosV2 threeTimeSlots = new RunAllScenariosV2(twoLots, 3, 0.25,"v1.0", "3TimeSlots");
-		RunAllScenariosV2 eickelohOpenAndThreeTimeSlots = new RunAllScenariosV2(eickeloh, 3, 0.25,"EickelohOpen", "eickelohOpen_3TimeSlots");
-		RunAllScenariosV2 twoTimeSlots = new RunAllScenariosV2(twoLots, 2, 0.25,"v1.0", "2TimeSlots");		*/
-
-		/*RunAllScenariosV2 eickelohOpenAndTwoTimeSlots25 = new RunAllScenariosV2(eickeloh, 2, 0.25,"EickelohOpen", "eickelohOpen_2TimeSlots25");
-
-		RunAllScenariosV2 fourTimeSlots50 = new RunAllScenariosV2(twoLots, 4,0.5, "v1.0", "4TimeSlots50");
-		RunAllScenariosV2 eickelohOpenAndFourTimeSlots50 = new RunAllScenariosV2(eickeloh, 4, 0.5,"EickelohOpen", "eickelohOpen_4TimeSlots50");
-		RunAllScenariosV2 threeTimeSlots50 = new RunAllScenariosV2(twoLots, 3, 0.5,"v1.0", "3TimeSlots50");
-		RunAllScenariosV2 eickelohOpenAndThreeTimeSlots50 = new RunAllScenariosV2(eickeloh, 3, 0.5,"EickelohOpen", "eickelohOpen_3TimeSlots50");
-		RunAllScenariosV2 twoTimeSlots50 = new RunAllScenariosV2(twoLots, 2, 0.5,"v1.0", "2TimeSlots50");
-		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots50 = new RunAllScenariosV2(eickeloh, 2, 0.5,"EickelohOpen", "eickelohOpen_2TimeSlots50");
-
-		RunAllScenariosV2 fourTimeSlots75 = new RunAllScenariosV2(twoLots, 4,0.75, "v1.0", "4TimeSlots75");
-		RunAllScenariosV2 eickelohOpenAndFourTimeSlots75 = new RunAllScenariosV2(eickeloh, 4, 0.75,"EickelohOpen", "eickelohOpen_4TimeSlots75");
-		RunAllScenariosV2 threeTimeSlots75 = new RunAllScenariosV2(twoLots, 3, 0.75,"v1.0", "3TimeSlots75");
-		RunAllScenariosV2 eickelohOpenAndThreeTimeSlots75 = new RunAllScenariosV2(eickeloh, 3, 0.75,"EickelohOpen", "eickelohOpen_3TimeSlots75");
-		RunAllScenariosV2 twoTimeSlots75 = new RunAllScenariosV2(twoLots, 2, 0.75,"v1.0", "2TimeSlots75");
-		*/
-		//RunAllScenariosV2 eickelohOpenAndTwoTimeSlots75 = new RunAllScenariosV2(eickeloh, 2, 0.75,"EickelohOpen", "eickelohOpen_2TimeSlots75");
-
-
-
-		/*scenarios.add(baseScenario);
-		scenarios.add(eickelohOpen);*/
-
-		/*scenarios.add(eickelohOpenAndTwoTimeSlots25);
-
-		scenarios.add(fourTimeSlots50);
-		scenarios.add(eickelohOpenAndFourTimeSlots50);
-		scenarios.add(threeTimeSlots50);
-		scenarios.add(eickelohOpenAndThreeTimeSlots50);
-		scenarios.add(twoTimeSlots50);
-		scenarios.add(eickelohOpenAndTwoTimeSlots50);
-
-		scenarios.add(fourTimeSlots75);
-		scenarios.add(eickelohOpenAndFourTimeSlots75);
-		scenarios.add(threeTimeSlots75);
-		scenarios.add(eickelohOpenAndThreeTimeSlots75);
-		scenarios.add(twoTimeSlots75);*/
-		//scenarios.add(eickelohOpenAndTwoTimeSlots75);
-
-		/*scenarios.add(sevenTimeSlots);
-		scenarios.add(eickelohOpenAndSevenTimeSlots);
-		scenarios.add(eightTimeSlots);*/
-
-
 		for (RunAllScenariosV2 s: scenarios) {
 
 			Config config = prepareConfig( args, s.parkingLots, s.numberOfTimeSlots, s.networkFileName, s.outputDirectory ) ;
@@ -338,6 +287,7 @@ public final class RunAllScenariosV2 {
 
 			// double capacity of first link on access road
 			if (link.getId().equals(Id.createLinkId("2344589960000f"))) {
+				link.setNumberOfLanes(2.);
 				link.setCapacity(1440.);
 			}
 
