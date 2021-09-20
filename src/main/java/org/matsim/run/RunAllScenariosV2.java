@@ -105,7 +105,7 @@ public final class RunAllScenariosV2 {
 		ArrayList<String> twoLots = new ArrayList<>(Arrays.asList("serengetiParkplatz", "wasserlandParkplatz"));
 		ArrayList<String> eickeloh = new ArrayList<>(Arrays.asList("eickelohParkplatz"));
 
-		RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1, 0.0, "v1.0", "v1.0");
+		/*RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1, 0.0, "v1.0", "v1.0");
 
 		RunAllScenariosV2 twoSlots0 = new RunAllScenariosV2(twoLots, 2, 0.0, "v1.0", "2TimeSlots0");
 		RunAllScenariosV2 twoSlots25 = new RunAllScenariosV2(twoLots, 2, 0.25, "v1.0", "2TimeSlots25");
@@ -128,6 +128,8 @@ public final class RunAllScenariosV2 {
 		RunAllScenariosV2 eickelohOpen = new RunAllScenariosV2(eickeloh, 1, 0.0, "EickelohOpen", "eickelohOpen");
 
 		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots0 = new RunAllScenariosV2(eickeloh, 2, 0.0,"EickelohOpen", "eickelohOpen_2TimeSlots0");
+
+*/
 		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots25 = new RunAllScenariosV2(eickeloh, 2, 0.25,"EickelohOpen", "eickelohOpen_2TimeSlots25");
 		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots50 = new RunAllScenariosV2(eickeloh, 2, 0.50,"EickelohOpen", "eickelohOpen_2TimeSlots50");
 		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots75 = new RunAllScenariosV2(eickeloh, 2, 0.75,"EickelohOpen", "eickelohOpen_2TimeSlots75");
@@ -147,7 +149,7 @@ public final class RunAllScenariosV2 {
 
 		List<RunAllScenariosV2> scenarios = new ArrayList<>();
 
-		scenarios.add(baseScenario);
+		/*scenarios.add(baseScenario);
 
 		scenarios.add(twoSlots0);
 		scenarios.add(twoSlots25);
@@ -169,7 +171,7 @@ public final class RunAllScenariosV2 {
 
 		scenarios.add(eickelohOpen);
 
-		scenarios.add(eickelohOpenAndTwoTimeSlots0);
+		scenarios.add(eickelohOpenAndTwoTimeSlots0);*/
 		scenarios.add(eickelohOpenAndTwoTimeSlots25);
 		scenarios.add(eickelohOpenAndTwoTimeSlots50);
 		scenarios.add(eickelohOpenAndTwoTimeSlots75);
