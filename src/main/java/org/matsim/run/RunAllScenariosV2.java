@@ -64,7 +64,7 @@ public final class RunAllScenariosV2 {
 	private static final Logger log = Logger.getLogger(RunAllScenariosV2.class );
 
 	private final static int totalVisitors = 17000;
-	private final static double percentageSafariOwnCar = 0.8;
+	private final static double percentageSafariOwnCar = 0.5;
 	private final static double percentageVisitorsOwnCar = 0.9;
 	private final static double checkInOpeningTime = 9.5*3600.;
 	private final static double checkInClosingTime = 16.5*3600.; // check-in closing at 16:00 at the earliest  & 2 h before park closing time at the latest
@@ -105,7 +105,7 @@ public final class RunAllScenariosV2 {
 		ArrayList<String> twoLots = new ArrayList<>(Arrays.asList("serengetiParkplatz", "wasserlandParkplatz"));
 		ArrayList<String> eickeloh = new ArrayList<>(Arrays.asList("eickelohParkplatz"));
 
-		/*RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1, 0.0, "v1.0", "v1.0");
+		RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1, 0.0, "v1.0", "v1.0");
 
 		RunAllScenariosV2 twoSlots0 = new RunAllScenariosV2(twoLots, 2, 0.0, "v1.0", "2TimeSlots0");
 		RunAllScenariosV2 twoSlots25 = new RunAllScenariosV2(twoLots, 2, 0.25, "v1.0", "2TimeSlots25");
@@ -125,11 +125,11 @@ public final class RunAllScenariosV2 {
 		RunAllScenariosV2 fourSlots75 = new RunAllScenariosV2(twoLots, 4, 0.75, "v1.0", "4TimeSlots75");
 		RunAllScenariosV2 fourSlots100 = new RunAllScenariosV2(twoLots, 4, 1.0, "v1.0", "4TimeSlots100");
 
+
 		RunAllScenariosV2 eickelohOpen = new RunAllScenariosV2(eickeloh, 1, 0.0, "EickelohOpen", "eickelohOpen");
 
 		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots0 = new RunAllScenariosV2(eickeloh, 2, 0.0,"EickelohOpen", "eickelohOpen_2TimeSlots0");
 
-*/
 		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots25 = new RunAllScenariosV2(eickeloh, 2, 0.25,"EickelohOpen", "eickelohOpen_2TimeSlots25");
 		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots50 = new RunAllScenariosV2(eickeloh, 2, 0.50,"EickelohOpen", "eickelohOpen_2TimeSlots50");
 		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots75 = new RunAllScenariosV2(eickeloh, 2, 0.75,"EickelohOpen", "eickelohOpen_2TimeSlots75");
@@ -149,7 +149,7 @@ public final class RunAllScenariosV2 {
 
 		List<RunAllScenariosV2> scenarios = new ArrayList<>();
 
-		/*scenarios.add(baseScenario);
+		scenarios.add(baseScenario);
 
 		scenarios.add(twoSlots0);
 		scenarios.add(twoSlots25);
@@ -169,9 +169,10 @@ public final class RunAllScenariosV2 {
 		scenarios.add(fourSlots75);
 		scenarios.add(fourSlots100);
 
+
 		scenarios.add(eickelohOpen);
 
-		scenarios.add(eickelohOpenAndTwoTimeSlots0);*/
+		scenarios.add(eickelohOpenAndTwoTimeSlots0);
 		scenarios.add(eickelohOpenAndTwoTimeSlots25);
 		scenarios.add(eickelohOpenAndTwoTimeSlots50);
 		scenarios.add(eickelohOpenAndTwoTimeSlots75);
@@ -213,7 +214,7 @@ public final class RunAllScenariosV2 {
 
 		this.caseIdentifier = caseIdentifier;
 		this.networkFileName = ("serengeti-park-network-" + networkIdentifier+ ".xml.gz");
-		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run" + totalVisitors + "visitors" + "-80");
+		this.outputDirectory = ("./scenarios/output/output-serengeti-park-" + caseIdentifier + "-run" + totalVisitors + "visitors" + "-50");
 	}
 
 
@@ -289,7 +290,7 @@ public final class RunAllScenariosV2 {
 
 			// double capacity of first link on access road
 			if (link.getId().equals(Id.createLinkId("2344589960000f"))) {
-				link.setNumberOfLanes(2.);
+				link.setNumberOfLanes(1.);
 				link.setCapacity(1440.);
 			}
 

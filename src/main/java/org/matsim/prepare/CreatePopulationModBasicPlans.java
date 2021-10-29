@@ -117,7 +117,7 @@ public class CreatePopulationModBasicPlans {
 	private final String serengetiParkShp = "./original-input-data/shp-files/serengeti-park/serengeti-park.shp";
 	private final String eickelohParkplatzShp = "./additional-input-data/shp-files/eickeloh-parkplatz/eickeloh-parkplatz.shp";
 
-	String plansFilePath = "./scenarios/output/output-serengeti-park-v1.0-run17000visitors-80/serengeti-park-v1.0-run1.output_plans.xml.gz";
+	String plansFilePath = "./scenarios/output/output-serengeti-park-v1.0-run17000visitors-50/serengeti-park-v1.0-run1.output_plans.xml.gz";
 
 
 	public static void main(String[] args) throws IOException {

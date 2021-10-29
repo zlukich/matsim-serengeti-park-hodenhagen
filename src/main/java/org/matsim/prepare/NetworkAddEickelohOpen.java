@@ -508,7 +508,7 @@ public class NetworkAddEickelohOpen {
 
 
 
-		// restrict links which do not belong to the intended "to-the-safari"-route
+		// restrict links which do not belong to the intended "to-the-safari"-route + RESTRICT SHORT CUT LINK FROM SAFARI TO EICKELOH PARKING LOT
 		Set<Id<Link>> restrictedLinks = new HashSet<>(Arrays.asList(
 
 				//serengetiparkplatz westseite
@@ -539,7 +539,13 @@ public class NetworkAddEickelohOpen {
 				//serengetiparkplatz nordseite
 				Id.createLinkId("7259809370008r"),
 				Id.createLinkId("7259809390010r"),
-				Id.createLinkId("774722210000r")
+				Id.createLinkId("774722210000r"),
+
+				//left turn behind main check-in booth
+				Id.createLinkId("5297562640008f"),
+
+				//shortcut safari eickeloh
+				Id.createLinkId("4429169870000r")
 
 
 
