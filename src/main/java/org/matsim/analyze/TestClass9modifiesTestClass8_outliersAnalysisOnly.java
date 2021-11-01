@@ -214,14 +214,14 @@ public class TestClass9modifiesTestClass8_outliersAnalysisOnly {
 
     public static void main(String[] args) {
 
-        ArrayList<String> eventsFiles = new ArrayList<>(Arrays.asList(eventsFile0, /*eventsFile1, eventsFile2, eventsFile3, eventsFile4, eventsFile5,
-                eventsFile6, eventsFile7, eventsFile8, eventsFile9, eventsFile10, eventsFile11, eventsFile12, eventsFile13, eventsFile14, eventsFile15, */
-                eventsFile16 /* eventsFile17, eventsFile18, eventsFile19, eventsFile20, eventsFile21, eventsFile22, eventsFile23, eventsFile24,
-                eventsFile25, eventsFile26, eventsFile27, eventsFile28, eventsFile29, eventsFile30, eventsFile31*/));
+        ArrayList<String> eventsFiles = new ArrayList<>(Arrays.asList(eventsFile0, eventsFile1, eventsFile2, eventsFile3, eventsFile4, eventsFile5,
+                eventsFile6, eventsFile7, eventsFile8, eventsFile9, eventsFile10, eventsFile11, eventsFile12, eventsFile13, eventsFile14, eventsFile15,
+                eventsFile16, eventsFile17, eventsFile18, eventsFile19, eventsFile20, eventsFile21, eventsFile22, eventsFile23, eventsFile24,
+                eventsFile25, eventsFile26, eventsFile27, eventsFile28, eventsFile29, eventsFile30, eventsFile31));
 
-        ArrayList<Network> networkFiles = new ArrayList<>(Arrays.asList(network0, /*network1, network2, network3, network4, network5, network6, network7,
-                network8, network9 , network10 , network11 , network12, network13, network14, network15 */ network16 /*, network17, network18, network19, network20,
-                network21, network22, network23, network24, network25, network26, network27, network28, network29, network30, network31*/));
+        ArrayList<Network> networkFiles = new ArrayList<>(Arrays.asList(network0, network1, network2, network3, network4, network5, network6, network7,
+                network8, network9 , network10 , network11 , network12, network13, network14, network15, network16, network17, network18, network19, network20,
+                network21, network22, network23, network24, network25, network26, network27, network28, network29, network30, network31));
 
 
         ArrayList<Double> asbussum_dFFTT = new ArrayList<>();
@@ -381,10 +381,9 @@ public class TestClass9modifiesTestClass8_outliersAnalysisOnly {
                     agentNumberToTravelTimeLoss_BaseCase.put(agentNumber, personToTravelTimeLoss.get(person) );
                 }
 
-/*
 
 
-                //write metrics_3 to csv
+  /*              //write metrics_3 to csv
                 try {
                     BufferedWriter writer = new BufferedWriter(new FileWriter("./src/main/java/org/matsim/analyze/output_analysis/output-final/METRICS_3_BasisSzenario.csv"));
                     writer.write("SBUS_AGENTID,START,FFTT,LOSS\n");
@@ -407,6 +406,123 @@ public class TestClass9modifiesTestClass8_outliersAnalysisOnly {
                 }
 
 */
+
+                // eingehende betrachtung basisfall durchfuehren....
+
+
+                // bestimme TTI
+
+                double t_max = Collections.max(personToTravelTime.values());
+
+                List< Id<Person> > keys = new ArrayList<>();
+
+                for (Map.Entry<Id<Person>, Double> entry : personToTravelTime.entrySet()) {
+
+                    if ( entry.getValue() == t_max ) {
+
+                        keys.add( entry.getKey() );
+
+                    }
+
+                }
+
+                List< Double > fftt_values = new ArrayList<>();
+
+                for ( Map.Entry <Id<Person>, Double> entry : personToFreeflowTravelTime.entrySet() ) {
+
+                    if ( keys.contains( entry.getKey() ) ) {
+
+                        fftt_values.add( entry.getValue() );
+
+                    }
+
+                }
+
+                double fftt_smallest = Collections.min(fftt_values);
+
+                double tti = t_max / fftt_smallest;
+
+                // bestimme t_max und TTR pro Gruppe
+
+                // 1. Safari
+
+                double safariT_max = Collections.max(safaribusPersonToTravelTime.values());
+
+
+                // zurr kontrollle
+
+                System.out.println("safari person times "+safaribusPersonToTravelTime);
+                for (Map.Entry <Id<Person>, Double> entry : safaribusPersonToTravelTime.entrySet()) {
+
+                    if (entry.getValue()==safariT_max) {
+                        System.out.println("safari max t person was " + entry.getKey());
+                        System.out.println("safari max t was " + entry.getValue());
+                    }
+
+                }
+
+
+                double sum_safariT = 0;
+
+                for (Double value : safaribusPersonToTravelTime.values()) {
+                    sum_safariT += value;
+                }
+
+                double avg_safariT = sum_safariT / numberSBUSAgents;
+
+                double safariTTR = safariT_max - avg_safariT;
+
+                // 2. TTR OwnCar
+
+                // sum up travel and parking time
+                Map<Id<Person>, Double> owncarPersonToTotalTravelTime = new LinkedHashMap<>();
+
+                for ( Map.Entry <Id<Person>, Double> entry : owncarPersonToTravelTime.entrySet() ) {
+
+                    owncarPersonToTotalTravelTime.put( entry.getKey(), entry.getValue() + (personToParkingTime.get( entry.getKey() ) != null? personToParkingTime.get( entry.getKey() ) : 0.) );
+
+                }
+
+
+                double ownCarTGes_max = Collections.max(owncarPersonToTotalTravelTime.values());
+
+
+                // zurr kontrollle
+                System.out.println("own car person times "+owncarPersonToTotalTravelTime);
+                for (Map.Entry <Id<Person>, Double> entry : owncarPersonToTotalTravelTime.entrySet()) {
+
+                    if (entry.getValue()==ownCarTGes_max) {
+                        System.out.println("owncar max t person was " + entry.getKey());
+                        System.out.println("owncar max t was " + entry.getValue());
+                    }
+
+                }
+
+
+                double sum_owncarTGes = 0;
+
+                for (Double value : owncarPersonToTotalTravelTime.values()) {
+                    sum_owncarTGes += value;
+                }
+
+                double avg_owncarTGes =  sum_owncarTGes / numberOWNCARAgents;
+
+                double owncarTTR =  ownCarTGes_max - avg_owncarTGes;
+
+
+                // VOR DEN ZAEHLER SCHLEIFE ZU ARRAYS HINZUFUEGEN ...
+                aTTI.add(tti);
+                asafari_max.add(safariT_max);
+                aowncar_max.add(ownCarTGes_max);
+                asafariTTR.add(safariTTR);
+                aowncarTTR.add(owncarTTR);
+
+
+
+
+
+
+
 
             }
 
