@@ -189,11 +189,15 @@ public class NetworkAddEickelohOpen {
 
 		
 
-		createBidirectionalLink2(network, factory, modes, lastNodeOfNorthernAccessRoadToEickeloh,914822755, 59.347, 2., 2.);
+		/*createBidirectionalLink2(network, factory, modes, lastNodeOfNorthernAccessRoadToEickeloh,914822755, 59.347, 2., 2.);
 		createBidirectionalLink2(network, factory,modes, 914822755, 914822756, 12.866, 2., 2.);
 		createBidirectionalLink2(network, factory,modes,914822756, 914822757, 59.599, 2., 2.);
-		createBidirectionalLink2(network, factory,modes,914822757, 914822758, 29.808, 2., 2.);
-		
+		createBidirectionalLink2(network, factory,modes,914822757, 914822758, 29.808, 2., 2.);*/
+
+		createBidirectionalLink2(network, factory, modes, lastNodeOfNorthernAccessRoadToEickeloh,914822755, 59.347, 1., 2.);
+		createBidirectionalLink2(network, factory,modes, 914822755, 914822756, 12.866, 1., 2.);
+		createBidirectionalLink2(network, factory,modes,914822756, 914822757, 59.599, 1., 2.);
+		createBidirectionalLink2(network, factory,modes,914822757, 914822758, 29.808, 1., 2.);
 
 
 		//west side
@@ -542,10 +546,12 @@ public class NetworkAddEickelohOpen {
 				Id.createLinkId("774722210000r"),
 
 				//left turn behind main check-in booth
-				Id.createLinkId("5297562640008f"),
+				Id.createLinkId("5297562640008f")
 
-				//shortcut safari eickeloh
-				Id.createLinkId("4429169870000r")
+				/*//shortcut safari eickeloh : several links!!!!!
+				Id.createLinkId("4429169870000r"),
+				Id.createLinkId("4429169910001r"),
+				Id.createLinkId("4429169910000r")*/
 
 
 
@@ -556,6 +562,49 @@ public class NetworkAddEickelohOpen {
 			if (restrictedLinks.contains(link.getId())) {
 				link.setFreespeed(0.001);
 				link.setCapacity(0.);
+			}
+		}
+
+
+		// just remove the short cut links from safari route to parking lot because for some reason they still use the first link there...
+		// restrict links which do not belong to the intended "to-the-safari"-route + RESTRICT SHORT CUT LINK FROM SAFARI TO EICKELOH PARKING LOT
+		Set<Id<Link>> linksToBeRemoved = new HashSet<>(Arrays.asList(
+
+
+				//shortcut safari eickeloh : several links!!!!!
+				// towards parking lot
+				Id.createLinkId("4429169870000r"),
+				Id.createLinkId("4429169910001r"),
+				Id.createLinkId("4429169910000r"),
+
+				Id.createLinkId("4429169910000f"),
+				Id.createLinkId("4429169910001f"),
+				Id.createLinkId("4429169870000f")
+
+		));
+
+		for (Link link : network.getLinks().values()) {
+
+			if (linksToBeRemoved.contains(link.getId())) {
+				network.removeLink(link.getId());
+			}
+		}
+
+		// clean up nodes
+		Set<Id<Node>> nodesToBeRemoved = new HashSet<>(Arrays.asList(
+
+
+				Id.createNodeId("4405652893"),
+				Id.createNodeId("4405652892"),
+				Id.createNodeId("4405652891")
+
+
+		));
+
+		for (Node node : network.getNodes().values()) {
+
+			if (nodesToBeRemoved.contains(node.getId())) {
+				network.removeNode(node.getId());
 			}
 		}
 		

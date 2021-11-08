@@ -105,8 +105,9 @@ public final class RunAllScenariosV2 {
 		ArrayList<String> twoLots = new ArrayList<>(Arrays.asList("serengetiParkplatz", "wasserlandParkplatz"));
 		ArrayList<String> eickeloh = new ArrayList<>(Arrays.asList("eickelohParkplatz"));
 
-		RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1, 0.0, "v1.0", "v1.0");
+//		RunAllScenariosV2 baseScenario = new RunAllScenariosV2(twoLots, 1, 0.0, "v1.0", "v1.0");
 
+/*
 		RunAllScenariosV2 twoSlots0 = new RunAllScenariosV2(twoLots, 2, 0.0, "v1.0", "2TimeSlots0");
 		RunAllScenariosV2 twoSlots25 = new RunAllScenariosV2(twoLots, 2, 0.25, "v1.0", "2TimeSlots25");
 		RunAllScenariosV2 twoSlots50 = new RunAllScenariosV2(twoLots, 2, 0.5, "v1.0", "2TimeSlots50");
@@ -125,8 +126,10 @@ public final class RunAllScenariosV2 {
 		RunAllScenariosV2 fourSlots75 = new RunAllScenariosV2(twoLots, 4, 0.75, "v1.0", "4TimeSlots75");
 		RunAllScenariosV2 fourSlots100 = new RunAllScenariosV2(twoLots, 4, 1.0, "v1.0", "4TimeSlots100");
 
+*/
 
 		RunAllScenariosV2 eickelohOpen = new RunAllScenariosV2(eickeloh, 1, 0.0, "EickelohOpen", "eickelohOpen");
+/*
 
 		RunAllScenariosV2 eickelohOpenAndTwoTimeSlots0 = new RunAllScenariosV2(eickeloh, 2, 0.0,"EickelohOpen", "eickelohOpen_2TimeSlots0");
 
@@ -146,11 +149,12 @@ public final class RunAllScenariosV2 {
 		RunAllScenariosV2 eickelohOpenAndFourTimeSlots50 = new RunAllScenariosV2(eickeloh, 4, 0.50,"EickelohOpen", "eickelohOpen_4TimeSlots50");
 		RunAllScenariosV2 eickelohOpenAndFourTimeSlots75 = new RunAllScenariosV2(eickeloh, 4, 0.75,"EickelohOpen", "eickelohOpen_4TimeSlots75");
 		RunAllScenariosV2 eickelohOpenAndFourTimeSlots100 = new RunAllScenariosV2(eickeloh, 4, 1.0,"EickelohOpen", "eickelohOpen_4TimeSlots100");
-
+*/
 		List<RunAllScenariosV2> scenarios = new ArrayList<>();
 
-		scenarios.add(baseScenario);
+//		scenarios.add(baseScenario);
 
+/*
 		scenarios.add(twoSlots0);
 		scenarios.add(twoSlots25);
 		scenarios.add(twoSlots50);
@@ -169,9 +173,11 @@ public final class RunAllScenariosV2 {
 		scenarios.add(fourSlots75);
 		scenarios.add(fourSlots100);
 
+*/
 
 		scenarios.add(eickelohOpen);
 
+/*
 		scenarios.add(eickelohOpenAndTwoTimeSlots0);
 		scenarios.add(eickelohOpenAndTwoTimeSlots25);
 		scenarios.add(eickelohOpenAndTwoTimeSlots50);
@@ -189,6 +195,7 @@ public final class RunAllScenariosV2 {
 		scenarios.add(eickelohOpenAndFourTimeSlots50);
 		scenarios.add(eickelohOpenAndFourTimeSlots75);
 		scenarios.add(eickelohOpenAndFourTimeSlots100);
+*/
 
 
 		for (RunAllScenariosV2 s: scenarios) {
@@ -296,7 +303,7 @@ public final class RunAllScenariosV2 {
 
 			// restrict capacity of first link on safari tour
 			if (link.getId().equals(Id.createLinkId("7232641200000f"))) {
-				link.setCapacity(296.); //197 //296 - war gut //476
+				link.setCapacity(476.); //197 //296 - war gut //476 //296
 			}
 
 
