@@ -11,7 +11,7 @@
 
 	<properties>
 		<!-- release -->
-		<matsim.version>13.0</matsim.version>
+		<matsim.version>14.0</matsim.version>
 
 		<!-- PR-labelled release -->
 		<!--<matsim.version>14.0-PR1452</matsim.version>-->
